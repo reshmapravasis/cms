@@ -34,12 +34,14 @@ class Settings extends Page implements HasForms
             'address' => Setting::get('address'),
             'working_hours' => Setting::get('working_hours'),
             'nav_link_color' => Setting::get('nav_link_color', '#4b5563'),
-            'nav_link_hover_color' => Setting::get('nav_link_hover_color', '#2563eb'),
-            'nav_link_active_color' => Setting::get('nav_link_active_color', '#2563eb'),
+            'nav_link_hover_color' => Setting::get('nav_link_hover_color', '#001973'),
+            'nav_link_active_color' => Setting::get('nav_link_active_color', '#001973'),
             'facebook' => Setting::get('facebook'),
             'twitter' => Setting::get('twitter'),
             'instagram' => Setting::get('instagram'),
             'linkedin' => Setting::get('linkedin'),
+            'admin_btn_color' => Setting::get('admin_btn_color', '#2563eb'),
+            'admin_btn_hover_color' => Setting::get('admin_btn_hover_color', '#1d4ed8'),
         ];
         $this->form->fill($this->data);
     }
@@ -61,6 +63,14 @@ class Settings extends Page implements HasForms
                                     ->label('Hover Color'),
                                 Forms\Components\ColorPicker::make('nav_link_active_color')
                                     ->label('Active Color'),
+                            ]),
+                        Section::make('Admin Button Colors')
+                            ->columns(2)
+                            ->schema([
+                                Forms\Components\ColorPicker::make('admin_btn_color')
+                                    ->label('Button Background'),
+                                Forms\Components\ColorPicker::make('admin_btn_hover_color')
+                                    ->label('Button Hover Background'),
                             ]),
                     ]),
                 Section::make('Contact')

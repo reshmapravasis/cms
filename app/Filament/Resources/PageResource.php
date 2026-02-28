@@ -37,6 +37,11 @@ class PageResource extends Resource
                                     ->unique(Page::class, 'slug', ignoreRecord: true),
                                 Forms\Components\Toggle::make('is_published')
                                     ->default(true),
+                                Forms\Components\Select::make('parent_id')
+                                    ->label('Parent Page')
+                                    ->relationship('parent', 'title')
+                                    ->placeholder('Select a parent page (optional)')
+                                    ->searchable(),
                             ]),
                         Forms\Components\Tabs\Tab::make('Content')
                             ->schema([
@@ -51,6 +56,15 @@ class PageResource extends Resource
                                                     ->required(),
                                                 Forms\Components\ColorPicker::make('text_color')
                                                     ->default('#111827'),
+                                                Forms\Components\Select::make('text_size')
+                                                    ->options([
+                                                        'text-sm' => 'Small',
+                                                        'text-base' => 'Normal',
+                                                        'text-lg' => 'Medium',
+                                                        'text-xl' => 'Large',
+                                                        'text-2xl' => 'Extra Large',
+                                                    ])
+                                                    ->default('text-base'),
                                             ]),
                                         Forms\Components\Builder\Block::make('hero')
                                             ->schema([
@@ -60,6 +74,15 @@ class PageResource extends Resource
                                                 Forms\Components\TextInput::make('subheading'),
                                                 Forms\Components\ColorPicker::make('subheading_color')
                                                     ->default('#dbeafe'),
+                                                Forms\Components\Select::make('text_size')
+                                                    ->label('Subheading Size')
+                                                    ->options([
+                                                        'text-base' => 'Small',
+                                                        'text-lg' => 'Normal',
+                                                        'text-xl' => 'Medium',
+                                                        'text-2xl' => 'Large',
+                                                    ])
+                                                    ->default('text-xl'),
                                                 Forms\Components\FileUpload::make('background_image')
                                                     ->image()
                                                     ->disk('public')
@@ -89,12 +112,71 @@ class PageResource extends Resource
                                                 Forms\Components\TextInput::make('title'),
                                             ]),
                                         Forms\Components\Builder\Block::make('gallery')
+                                            ->label('🖼️ Photo Gallery')
                                             ->schema([
-                                                Forms\Components\FileUpload::make('images')
-                                                    ->multiple()
-                                                    ->image()
-                                                    ->disk('public')
+                                                Forms\Components\TextInput::make('heading')->placeholder('Gallery Heading (optional)'),
+                                                Forms\Components\Repeater::make('images')
+                                                    ->schema([
+                                                        Forms\Components\FileUpload::make('image')
+                                                            ->image()
+                                                            ->disk('public')
+                                                            ->directory('gallery')
+                                                            ->required(),
+                                                        Forms\Components\TextInput::make('label')
+                                                            ->placeholder('Enter label (optional)'),
+                                                    ])
+                                                    ->grid(3)
+                                                    ->collapsible()
+                                                    ->itemLabel(fn (array $state): ?string => $state['label'] ?? null)
                                                     ->required(),
+                                                Forms\Components\Select::make('columns')
+                                                    ->options([
+                                                        '2' => '2 Columns',
+                                                        '3' => '3 Columns',
+                                                        '4' => '4 Columns',
+                                                    ])
+                                                    ->default('3'),
+                                            ]),
+                                        Forms\Components\Builder\Block::make('video_gallery')
+                                            ->label('🎬 Video Gallery')
+                                            ->schema([
+                                                Forms\Components\TextInput::make('heading')->placeholder('Gallery Heading (optional)'),
+                                                Forms\Components\Repeater::make('videos')
+                                                    ->schema([
+                                                        Forms\Components\Select::make('type')
+                                                            ->options([
+                                                                'url' => 'External URL (YouTube/Video)',
+                                                                'file' => 'Local Video Upload',
+                                                            ])
+                                                            ->default('url')
+                                                            ->live()
+                                                            ->required(),
+                                                        Forms\Components\TextInput::make('url')
+                                                            ->label('Video URL')
+                                                            ->placeholder('Enter YouTube or Vimeo link')
+                                                            ->visible(fn (Forms\Get $get) => $get('type') === 'url')
+                                                            ->requiredIf('type', 'url'),
+                                                        Forms\Components\FileUpload::make('file')
+                                                            ->label('Upload Video')
+                                                            ->disk('public')
+                                                            ->directory('videos')
+                                                            ->acceptedFileTypes(['video/mp4', 'video/webm', 'video/ogg'])
+                                                            ->maxSize(102400) // 100MB
+                                                            ->visible(fn (Forms\Get $get) => $get('type') === 'file')
+                                                            ->requiredIf('type', 'file'),
+                                                        Forms\Components\TextInput::make('title')
+                                                            ->placeholder('Video Title (optional)'),
+                                                    ])
+                                                    ->columns(2)
+                                                    ->defaultItems(1)
+                                                    ->collapsible(),
+                                                Forms\Components\Select::make('columns')
+                                                    ->options([
+                                                        '1' => '1 Column',
+                                                        '2' => '2 Columns',
+                                                        '3' => '3 Columns',
+                                                    ])
+                                                    ->default('2'),
                                             ]),
                                         Forms\Components\Builder\Block::make('split_content')
                                             ->label('Split Content (Text & Image)')
@@ -115,6 +197,14 @@ class PageResource extends Resource
                                                             ->columnSpanFull(),
                                                         Forms\Components\ColorPicker::make('text_color')
                                                             ->default('#374151'),
+                                                        Forms\Components\Select::make('text_size')
+                                                            ->options([
+                                                                'text-xs' => 'Smallest',
+                                                                'text-sm' => 'Small',
+                                                                'text-base' => 'Normal',
+                                                                'text-lg' => 'Large',
+                                                            ])
+                                                            ->default('text-base'),
                                                         Forms\Components\FileUpload::make('image')
                                                             ->image()
                                                             ->disk('public')
@@ -147,6 +237,15 @@ class PageResource extends Resource
                                                             ->label('Section Description')
                                                             ->profile('default')
                                                             ->output(TiptapOutput::Html),
+                                                        Forms\Components\Select::make('text_size')
+                                                            ->label('Description Size')
+                                                            ->options([
+                                                                'text-xs' => 'Small',
+                                                                'text-sm' => 'Normal',
+                                                                'text-base' => 'Medium',
+                                                                'text-lg' => 'Large',
+                                                            ])
+                                                            ->default('text-sm'),
                                                         Forms\Components\FileUpload::make('image')
                                                             ->label('Section Image')
                                                             ->image()
@@ -271,6 +370,55 @@ class PageResource extends Resource
                                                     ->default('Contact Us'),
                                                 Forms\Components\TextInput::make('subheading'),
                                             ]),
+                                        Forms\Components\Builder\Block::make('stats')
+                                            ->label('📊 Statistics Counters')
+                                            ->schema([
+                                                Forms\Components\Repeater::make('items')
+                                                    ->schema([
+                                                        Forms\Components\TextInput::make('number')
+                                                            ->label('Number (e.g. 515)')
+                                                            ->numeric()
+                                                            ->required(),
+                                                        Forms\Components\TextInput::make('label')
+                                                            ->label('Label (e.g. Clients)')
+                                                            ->required(),
+                                                        Forms\Components\TextInput::make('suffix')
+                                                            ->label('Suffix (e.g. + or %)')
+                                                            ->placeholder('+'),
+                                                    ])
+                                                    ->grid(4)
+                                                    ->defaultItems(4)
+                                                    ->collapsible(),
+                                            ]),
+                                        Forms\Components\Builder\Block::make('info_cards')
+                                            ->label('📦 Info Cards (Mission/Vision)')
+                                            ->schema([
+                                                Forms\Components\Repeater::make('items')
+                                                    ->schema([
+                                                        Forms\Components\TextInput::make('title')
+                                                            ->required(),
+                                                        Forms\Components\Textarea::make('description')
+                                                            ->rows(3)
+                                                            ->required(),
+                                                        Forms\Components\ColorPicker::make('bg_color')
+                                                            ->label('Background Color')
+                                                            ->default('#001a72'),
+                                                        Forms\Components\ColorPicker::make('text_color')
+                                                            ->label('Text Color')
+                                                            ->default('#ffffff'),
+                                                        Forms\Components\Select::make('text_size')
+                                                            ->options([
+                                                                'text-sm' => 'Small',
+                                                                'text-base' => 'Normal',
+                                                                'text-lg' => 'Medium',
+                                                                'text-xl' => 'Large',
+                                                            ])
+                                                            ->default('text-lg'),
+                                                    ])
+                                                    ->grid(2)
+                                                    ->defaultItems(2)
+                                                    ->collapsible(),
+                                            ]),
                                     ])
                                     ->collapsible()
                                     ->cloneable(),
@@ -289,6 +437,7 @@ class PageResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('title')->searchable(),
+                Tables\Columns\TextColumn::make('parent.title')->label('Parent Page'),
                 Tables\Columns\TextColumn::make('slug')->searchable(),
                 Tables\Columns\ToggleColumn::make('is_published'),
                 Tables\Columns\TextColumn::make('updated_at')->dateTime(),
