@@ -23,6 +23,46 @@
             @foreach($grouped as $block)
                 <div class="block-container relative">
                     @switch($block['type'])
+                        @case('marquee')
+                            @php
+                                $effectClass = [
+                                    'none' => '',
+                                    'shadow' => 'marquee-shadow',
+                                    'glow' => 'marquee-glow',
+                                    'outline' => 'marquee-outline'
+                                ][$block['data']['text_effect'] ?? 'none'] ?? '';
+                                
+                                $textClasses = implode(' ', [
+                                    $block['data']['font_size'] ?? 'text-base',
+                                    $block['data']['font_weight'] ?? 'font-medium',
+                                    'tracking-wide',
+                                    $effectClass
+                                ]);
+                            @endphp
+                            <div class="w-full overflow-hidden whitespace-nowrap py-4 shadow-inner relative z-10" 
+                                 style="background-color: {{ $block['data']['bg_color'] ?? '#1e40af' }}; color: {{ $block['data']['text_color'] ?? '#ffffff' }};">
+                                <div class="flex items-center {{ $block['data']['speed'] ?? 'animate-marquee-normal' }} hover:pause-marquee">
+                                    {{-- Render items twice for infinite loop --}}
+                                    @for($i = 0; $i < 2; $i++)
+                                        <div class="flex items-center flex-shrink-0">
+                                            @foreach($block['data']['items'] as $item)
+                                                <div class="flex items-center px-10">
+                                                    @if(!empty($item['link']))
+                                                        <a href="{{ $item['link'] }}" class="hover:underline {{ $textClasses }}">
+                                                            {{ $item['text'] }}
+                                                        </a>
+                                                    @else
+                                                        <span class="{{ $textClasses }}">{{ $item['text'] }}</span>
+                                                    @endif
+                                                    <span class="mx-8 opacity-40 text-2xl">{{ $block['data']['separator'] ?? '•' }}</span>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    @endfor
+                                </div>
+                            </div>
+                            @break
+
                         @case('hero')
                             <section class="relative h-[450px] flex items-center justify-center bg-blue-900 overflow-hidden">
                                 @if(isset($block['data']['background_image']))
@@ -445,7 +485,11 @@
                                         <label class="block text-sm font-semibold text-gray-700 mb-2">Email</label>
                                         <input type="email" name="email" required class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
                                     </div>
-                                    <div class="md:col-span-2">
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Phone</label>
+                                        <input type="text" name="phone" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+                                    </div>
+                                    <div>
                                         <label class="block text-sm font-semibold text-gray-700 mb-2">Subject</label>
                                         <input type="text" name="subject" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
                                     </div>
@@ -656,6 +700,23 @@
         from { opacity: 0; transform: scale(0.9); }
         to { opacity: 1; transform: scale(1); }
     }
+
+    /* Marquee Animations */
+    .animate-marquee-slow { animation: marquee 40s linear infinite; }
+    .animate-marquee-normal { animation: marquee 25s linear infinite; }
+    .animate-marquee-fast { animation: marquee 12s linear infinite; }
+    
+    .hover\:pause-marquee:hover { animation-play-state: paused !important; }
+
+    @keyframes marquee {
+        0% { transform: translateX(0%); }
+        100% { transform: translateX(-50%); }
+    }
+
+    /* Text Effects */
+    .marquee-shadow { text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+    .marquee-glow { text-shadow: 0 0 10px currentColor, 0 0 20px currentColor; }
+    .marquee-outline { -webkit-text-stroke: 1px rgba(0,0,0,0.3); }
 </style>
 <script>
     let currentGallery = [];

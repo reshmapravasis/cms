@@ -4,7 +4,7 @@
     
     $pages = \App\Models\Page::where('is_published', true)
         ->whereNull('parent_id')
-        ->with('children')
+        ->with(['children' => fn($q) => $q->where('is_published', true)])
         ->get();
 
     $headerMenu = \App\Models\Menu::getHeader();
@@ -15,6 +15,11 @@
     $navActiveColor = \App\Models\Setting::get('nav_link_active_color', '#2563eb');
     $adminBtnColor = \App\Models\Setting::get('admin_btn_color', '#2563eb');
     $adminBtnHoverColor = \App\Models\Setting::get('admin_btn_hover_color', '#1d4ed8');
+    $headerBgColor = \App\Models\Setting::get('header_bg_color', '#ffffff');
+    $headerTextColor = \App\Models\Setting::get('header_text_color', '#111827');
+    $topBarBgColor = \App\Models\Setting::get('top_bar_bg_color', '#111827');
+    $topBarTextColor = \App\Models\Setting::get('top_bar_text_color', '#ffffff');
+    $headerBgImage = \App\Models\Setting::get('header_bg_image');
 @endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
@@ -39,6 +44,11 @@
             --nav-active: {{ $navActiveColor }};
             --admin-btn-bg: {{ $adminBtnColor }};
             --admin-btn-hover: {{ $adminBtnHoverColor }};
+            --header-bg: {{ $headerBgColor }};
+            --header-text: {{ $headerTextColor }};
+            --top-bar-bg: {{ $topBarBgColor }};
+            --top_bar_text: {{ $topBarTextColor }};
+            --header-bg-image: url('{{ $headerBgImage ? Storage::url($headerBgImage) : "" }}');
         }
 
         .nav-link { color: var(--nav-color); transition: color 0.3s ease; }
@@ -58,9 +68,9 @@
     </style>
 </head>
 <body class="antialiased bg-gray-50">
-    <header class="bg-white border-b border-gray-100 sticky top-0 z-50">
+    <header class="border-b border-gray-100 sticky top-0 z-50 bg-cover bg-center bg-no-repeat" style="background-color: var(--header-bg); color: var(--header-text); @if($headerBgImage) background-image: var(--header-bg-image); @endif">
         <!-- Top Bar -->
-        <div class="bg-gray-900 text-white text-xs py-2">
+        <div class="py-2" style="background-color: var(--top-bar-bg); color: var(--top-bar-text);">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center space-y-2 md:space-y-0">
                 <div class="flex items-center space-x-6">
                     @if($email = \App\Models\Setting::get('email'))
@@ -98,7 +108,7 @@
                     @if($siteLogo)
                         <img src="{{ Storage::url($siteLogo) }}" alt="{{ $siteName }}" class="h-10 w-auto">
                     @endif
-                    <span class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-teal-500 bg-clip-text text-transparent">
+                    <span class="text-2xl font-bold" style="color: var(--header-text)">
                         {{ $siteName }}
                     </span>
                 </a>

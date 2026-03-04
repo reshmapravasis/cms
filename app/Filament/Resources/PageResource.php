@@ -47,6 +47,68 @@ class PageResource extends Resource
                             ->schema([
                                 Forms\Components\Builder::make('content')
                                     ->blocks([
+                                        Forms\Components\Builder\Block::make('marquee')
+                                            ->label('📢 News Ticker / Marquee')
+                                            ->schema([
+                                                Forms\Components\Repeater::make('items')
+                                                    ->label('Ticker Items')
+                                                    ->schema([
+                                                        Forms\Components\TextInput::make('text')
+                                                            ->required()
+                                                            ->placeholder('Enter news or update message'),
+                                                        Forms\Components\TextInput::make('link')
+                                                            ->placeholder('Link URL (optional)'),
+                                                    ])
+                                                    ->defaultItems(1)
+                                                    ->reorderable()
+                                                    ->collapsible(),
+                                                Forms\Components\Grid::make(3)
+                                                    ->schema([
+                                                        Forms\Components\ColorPicker::make('bg_color')
+                                                            ->label('Background Color')
+                                                            ->default('#1e40af'), 
+                                                        Forms\Components\ColorPicker::make('text_color')
+                                                            ->label('Text Color')
+                                                            ->default('#ffffff'),
+                                                        Forms\Components\Select::make('speed')
+                                                            ->options([
+                                                                'animate-marquee-slow' => 'Slow',
+                                                                'animate-marquee-normal' => 'Normal',
+                                                                'animate-marquee-fast' => 'Fast',
+                                                            ])
+                                                            ->default('animate-marquee-normal'),
+                                                        Forms\Components\Select::make('font_size')
+                                                            ->options([
+                                                                'text-xs' => 'Smallest',
+                                                                'text-sm' => 'Small',
+                                                                'text-base' => 'Normal',
+                                                                'text-lg' => 'Large',
+                                                                'text-xl' => 'Extra Large',
+                                                            ])
+                                                            ->default('text-base'),
+                                                        Forms\Components\Select::make('font_weight')
+                                                            ->options([
+                                                                'font-normal' => 'Normal',
+                                                                'font-medium' => 'Medium',
+                                                                'font-semibold' => 'Semibold',
+                                                                'font-bold' => 'Bold',
+                                                                'font-black' => 'Black',
+                                                            ])
+                                                            ->default('font-medium'),
+                                                        Forms\Components\Select::make('text_effect')
+                                                            ->options([
+                                                                'none' => 'None',
+                                                                'shadow' => 'Drop Shadow',
+                                                                'glow' => 'Glow Effect',
+                                                                'outline' => 'Text Outline',
+                                                            ])
+                                                            ->default('none'),
+                                                    ]),
+                                                Forms\Components\TextInput::make('separator')
+                                                    ->label('Separator Symbol')
+                                                    ->default('•')
+                                                    ->maxLength(5),
+                                            ]),
                                         Forms\Components\Builder\Block::make('rich_text')
                                             ->schema([
                                                 TiptapEditor::make('content')

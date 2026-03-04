@@ -42,6 +42,11 @@ class Settings extends Page implements HasForms
             'linkedin' => Setting::get('linkedin'),
             'admin_btn_color' => Setting::get('admin_btn_color', '#2563eb'),
             'admin_btn_hover_color' => Setting::get('admin_btn_hover_color', '#1d4ed8'),
+            'header_bg_color' => Setting::get('header_bg_color', '#ffffff'),
+            'header_text_color' => Setting::get('header_text_color', '#111827'),
+            'top_bar_bg_color' => Setting::get('top_bar_bg_color', '#111827'),
+            'top_bar_text_color' => Setting::get('top_bar_text_color', '#ffffff'),
+            'header_bg_image' => Setting::get('header_bg_image'),
         ];
         $this->form->fill($this->data);
     }
@@ -63,6 +68,24 @@ class Settings extends Page implements HasForms
                                     ->label('Hover Color'),
                                 Forms\Components\ColorPicker::make('nav_link_active_color')
                                     ->label('Active Color'),
+                            ]),
+                        Section::make('Header Style')
+                            ->columns(2)
+                            ->schema([
+                                Forms\Components\ColorPicker::make('header_bg_color')
+                                    ->label('Header Background Color'),
+                                Forms\Components\ColorPicker::make('header_text_color')
+                                    ->label('Header Text Color (Logo/Links)'),
+                                Forms\Components\ColorPicker::make('top_bar_bg_color')
+                                    ->label('Top Bar Background Color'),
+                                Forms\Components\ColorPicker::make('top_bar_text_color')
+                                    ->label('Top Bar Text Color'),
+                                Forms\Components\FileUpload::make('header_bg_image')
+                                    ->image()
+                                    ->disk('public')
+                                    ->directory('site')
+                                    ->label('Header Background Image')
+                                    ->columnSpanFull(),
                             ]),
                         Section::make('Admin Button Colors')
                             ->columns(2)

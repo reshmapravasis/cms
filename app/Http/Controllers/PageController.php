@@ -9,7 +9,9 @@ class PageController extends Controller
     public function show($slug = null)
     {
         if ($slug === null) {
-            $page = \App\Models\Page::where('slug', 'home')->first();
+            $page = \App\Models\Page::where('slug', 'home')
+                ->where('is_published', true)
+                ->first();
             if (!$page) {
                 return view('welcome');
             }
@@ -27,6 +29,7 @@ class PageController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255',
+            'phone' => 'nullable|string|max:20',
             'subject' => 'nullable|string|max:255',
             'message' => 'required|string',
         ]);
