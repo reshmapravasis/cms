@@ -28,6 +28,14 @@ class PageResource extends Resource
                     ->tabs([
                         Forms\Components\Tabs\Tab::make('General')
                             ->schema([
+                                 Forms\Components\Select::make('type')
+                                    ->options([
+                                        'page' => 'Static Page',
+                                        'post' => 'Blog Post',
+                                    ])
+                                    ->default('page')
+                                    ->required()
+                                    ->live(),
                                 Forms\Components\TextInput::make('title')
                                     ->required()
                                     ->live(onBlur: true)
@@ -35,6 +43,17 @@ class PageResource extends Resource
                                 Forms\Components\TextInput::make('slug')
                                     ->required()
                                     ->unique(Page::class, 'slug', ignoreRecord: true),
+                                
+                                Forms\Components\FileUpload::make('featured_image')
+                                    ->image()
+                                    ->disk('public')
+                                    ->directory('pages')
+                                    ->visible(fn (Forms\Get $get) => $get('type') === 'post'),
+                                
+                                Forms\Components\Textarea::make('excerpt')
+                                    ->rows(3)
+                                    ->visible(fn (Forms\Get $get) => $get('type') === 'post'),
+
                                 Forms\Components\Toggle::make('is_published')
                                     ->default(true),
                                 Forms\Components\Select::make('parent_id')
@@ -481,6 +500,40 @@ class PageResource extends Resource
                                                     ->defaultItems(2)
                                                     ->collapsible(),
                                             ]),
+                                        Forms\Components\Builder\Block::make('blog_feed')
+                                            ->label('📰 Latest Blog Feed')
+                                            ->schema([
+                                                Forms\Components\TextInput::make('heading')
+                                                    ->default('Latest News & Updates'),
+                                                Forms\Components\Select::make('heading_size')
+                                                    ->options([
+                                                        'text-2xl' => 'Small',
+                                                        'text-3xl' => 'Medium',
+                                                        'text-4xl' => 'Large',
+                                                        'text-5xl' => 'Extra Large',
+                                                        'text-6xl' => 'Huge',
+                                                    ])
+                                                    ->default('text-4xl'),
+                                                Forms\Components\TextInput::make('subheading')
+                                                    ->default('Stay updated with our latest stories'),
+                                                Forms\Components\Select::make('limit')
+                                                    ->label('Number of posts to show')
+                                                    ->options([
+                                                        '3' => '3 Posts',
+                                                        '6' => '6 Posts',
+                                                        '9' => '9 Posts',
+                                                    ])
+                                                    ->default('3'),
+                                                Forms\Components\Select::make('columns')
+                                                    ->options([
+                                                        '2' => '2 Columns',
+                                                        '3' => '3 Columns',
+                                                    ])
+                                                    ->default('3'),
+                                                Forms\Components\TextInput::make('view_all_link')
+                                                    ->label('View All Button Link (optional)')
+                                                    ->placeholder('/blog'),
+                                            ]),
                                     ])
                                     ->collapsible()
                                     ->cloneable(),
@@ -499,6 +552,12 @@ class PageResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('title')->searchable(),
+                Tables\Columns\TextColumn::make('type')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'page' => 'gray',
+                        'post' => 'success',
+                    }),
                 Tables\Columns\TextColumn::make('parent.title')->label('Parent Page'),
                 Tables\Columns\TextColumn::make('slug')->searchable(),
                 Tables\Columns\ToggleColumn::make('is_published'),

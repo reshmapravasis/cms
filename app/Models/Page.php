@@ -8,8 +8,12 @@ class Page extends Model
 {
     protected $fillable = [
         'title',
+        'title_size',
         'slug',
+        'type',
         'content',
+        'featured_image',
+        'excerpt',
         'is_published',
         'seo_title',
         'seo_description',

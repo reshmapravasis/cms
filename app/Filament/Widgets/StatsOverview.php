@@ -4,7 +4,6 @@ namespace App\Filament\Widgets;
 
 use App\Models\Inquiry;
 use App\Models\Page;
-use App\Models\Post;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Illuminate\Support\Carbon;
@@ -50,7 +49,7 @@ class StatsOverview extends BaseWidget
                 ->description($publishedPages . ' published | ' . $unpublishedPages . ' hidden')
                 ->descriptionIcon('heroicon-m-document-text')
                 ->color('success'),
-            Stat::make('Blog Posts', Post::count())
+            Stat::make('Blog Posts', Page::where('type', 'post')->count())
                 ->description('Active articles')
                 ->descriptionIcon('heroicon-m-newspaper')
                 ->color('info'),

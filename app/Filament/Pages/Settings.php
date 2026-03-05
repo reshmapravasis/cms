@@ -29,6 +29,7 @@ class Settings extends Page implements HasForms
         $this->data = [
             'site_name' => Setting::get('site_name', 'Pravasis IT Solution'),
             'logo' => Setting::get('logo'),
+            'footer_about_text' => Setting::get('footer_about_text', 'Leading provider of customized IT solutions and professional consultancy services.'),
             'email' => Setting::get('email'),
             'phone' => Setting::get('phone'),
             'address' => Setting::get('address'),
@@ -47,6 +48,7 @@ class Settings extends Page implements HasForms
             'top_bar_bg_color' => Setting::get('top_bar_bg_color', '#111827'),
             'top_bar_text_color' => Setting::get('top_bar_text_color', '#ffffff'),
             'header_bg_image' => Setting::get('header_bg_image'),
+            'google_maps_iframe' => Setting::get('google_maps_iframe'),
         ];
         $this->form->fill($this->data);
     }
@@ -59,6 +61,9 @@ class Settings extends Page implements HasForms
                     ->schema([
                         TextInput::make('site_name')->required(),
                         FileUpload::make('logo')->image()->disk('public')->directory('site'),
+                        Forms\Components\Textarea::make('footer_about_text')
+                            ->label('Footer Description')
+                            ->rows(3),
                         Section::make('Navigation Colors')
                             ->columns(3)
                             ->schema([
@@ -101,6 +106,10 @@ class Settings extends Page implements HasForms
                         TextInput::make('email')->email(),
                         TextInput::make('phone'),
                         TextInput::make('address'),
+                        Forms\Components\Textarea::make('google_maps_iframe')
+                            ->label('Google Maps Embed Code')
+                            ->helperText('Paste the <iframe> code from Google Maps share menu.')
+                            ->rows(3),
                         TextInput::make('working_hours')
                             ->placeholder('Mon-Fri: 9:00 AM - 6:00 PM'),
                     ]),
