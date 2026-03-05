@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Filament\Resources\PostResource\Pages;
+namespace App\Filament\Resources\PageResource\Pages;
 
-use App\Filament\Resources\PostResource;
+use App\Filament\Resources\PageResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Notifications\Notification;
 
-class EditPost extends EditRecord
+class EditPage extends EditRecord
 {
-    protected static string $resource = PostResource::class;
+    protected static string $resource = PageResource::class;
 
     protected function getHeaderActions(): array
     {
@@ -27,6 +27,6 @@ class EditPost extends EditRecord
     {
         return Notification::make()
             ->success()
-            ->title('Blog post updated successfully');
+            ->title('Page updated successfully');
     }
 }

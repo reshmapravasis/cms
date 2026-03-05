@@ -58,7 +58,8 @@ class InquiryResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ManageInquiries::route('/'),
+            'index' => Pages\ListInquiries::route('/'),
+            'view' => Pages\ViewInquiry::route('/{record}'),
         ];
     }
 }

@@ -1,15 +1,14 @@
 <?php
 
-namespace App\Filament\Resources\PostResource\Pages;
+namespace App\Filament\Resources\MenuResource\Pages;
 
-use App\Filament\Resources\PostResource;
-use Filament\Actions;
+use App\Filament\Resources\MenuResource;
 use Filament\Resources\Pages\CreateRecord;
 use Filament\Notifications\Notification;
 
-class CreatePost extends CreateRecord
+class CreateMenu extends CreateRecord
 {
-    protected static string $resource = PostResource::class;
+    protected static string $resource = MenuResource::class;
 
     protected function getRedirectUrl(): string
     {
@@ -20,6 +19,6 @@ class CreatePost extends CreateRecord
     {
         return Notification::make()
             ->success()
-            ->title('Blog post created successfully');
+            ->title('Menu item created successfully');
     }
 }

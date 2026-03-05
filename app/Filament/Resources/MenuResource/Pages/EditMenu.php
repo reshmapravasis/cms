@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Filament\Resources\PostResource\Pages;
+namespace App\Filament\Resources\MenuResource\Pages;
 
-use App\Filament\Resources\PostResource;
+use App\Filament\Resources\MenuResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Notifications\Notification;
 
-class EditPost extends EditRecord
+class EditMenu extends EditRecord
 {
-    protected static string $resource = PostResource::class;
+    protected static string $resource = MenuResource::class;
 
     protected function getHeaderActions(): array
     {
@@ -27,6 +27,6 @@ class EditPost extends EditRecord
     {
         return Notification::make()
             ->success()
-            ->title('Blog post updated successfully');
+            ->title('Menu item updated successfully');
     }
 }

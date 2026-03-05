@@ -4,16 +4,16 @@ namespace App\Filament\Resources\InquiryResource\Pages;
 
 use App\Filament\Resources\InquiryResource;
 use Filament\Actions;
-use Filament\Resources\Pages\ManageRecords;
+use Filament\Resources\Pages\ViewRecord;
 
-class ManageInquiries extends ManageRecords
+class ViewInquiry extends ViewRecord
 {
     protected static string $resource = InquiryResource::class;
 
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            Actions\DeleteAction::make(),
         ];
     }
 }
