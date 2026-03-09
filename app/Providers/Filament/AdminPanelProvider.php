@@ -26,9 +26,10 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-            // ->brandName('')
-            // ->brandLogo(asset('images/logo.png'))
-            // ->brandLogoHeight('2.5rem')
+            ->brandName(fn () => \App\Models\Setting::get('site_name', 'Pravasis IT Solution'))
+            ->brandLogo(fn () => ($logo = \App\Models\Setting::get('logo')) ? \Illuminate\Support\Facades\Storage::url($logo) : null)
+            ->brandLogoHeight('2.5rem')
+            ->favicon(fn () => ($icon = \App\Models\Setting::get('favicon')) ? \Illuminate\Support\Facades\Storage::url($icon) : null)
             ->login()
             ->colors([
                 'primary' => Color::Amber,
@@ -56,6 +57,10 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-            ]);
+            ])
+            ->renderHook(
+                'panels::user-menu.before',
+                fn (): string => view('filament.header-timer'),
+            );
     }
 }

@@ -196,6 +196,8 @@ class PageResource extends Resource
                                             ->label('🖼️ Photo Gallery')
                                             ->schema([
                                                 Forms\Components\TextInput::make('heading')->placeholder('Gallery Heading (optional)'),
+                                                Forms\Components\ColorPicker::make('heading_color')
+                                                    ->default('#111827'),
                                                 Forms\Components\Repeater::make('images')
                                                     ->schema([
                                                         Forms\Components\FileUpload::make('image')
@@ -205,6 +207,7 @@ class PageResource extends Resource
                                                             ->required(),
                                                         Forms\Components\TextInput::make('label')
                                                             ->placeholder('Enter label (optional)'),
+                                                        
                                                     ])
                                                     ->grid(3)
                                                     ->collapsible()
@@ -222,6 +225,8 @@ class PageResource extends Resource
                                             ->label('🎬 Video Gallery')
                                             ->schema([
                                                 Forms\Components\TextInput::make('heading')->placeholder('Gallery Heading (optional)'),
+                                                Forms\Components\ColorPicker::make('heading_color')
+                                                    ->default('#111827'),
                                                 Forms\Components\Repeater::make('videos')
                                                     ->schema([
                                                         Forms\Components\Select::make('type')
@@ -313,6 +318,8 @@ class PageResource extends Resource
                                                 Forms\Components\Grid::make(2)
                                                     ->schema([
                                                         Forms\Components\TextInput::make('anchor_id')->label('Anchor ID (e.g. services-section)'),
+                                                        Forms\Components\ColorPicker::make('heading_color')
+                                                            ->default('#111827'),
                                                         Forms\Components\TextInput::make('heading')->default('Our Services')->columnSpanFull(),
                                                         TiptapEditor::make('description')
                                                             ->label('Section Description')
@@ -429,6 +436,8 @@ class PageResource extends Resource
                                         Forms\Components\Builder\Block::make('testimonials')
                                             ->label('Testimonials Slider')
                                             ->schema([
+                                                Forms\Components\ColorPicker::make('heading_color')
+                                                    ->default('#ffffff'),
                                                 Forms\Components\TextInput::make('heading')->default('What Our Clients Say'),
                                                 Forms\Components\Repeater::make('items')
                                                     ->schema([
@@ -503,6 +512,8 @@ class PageResource extends Resource
                                         Forms\Components\Builder\Block::make('blog_feed')
                                             ->label('📰 Latest Blog Feed')
                                             ->schema([
+                                                Forms\Components\ColorPicker::make('heading_color')
+                                                    ->default('#111827'),
                                                 Forms\Components\TextInput::make('heading')
                                                     ->default('Latest News & Updates'),
                                                 Forms\Components\Select::make('heading_size')

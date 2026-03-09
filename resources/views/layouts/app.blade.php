@@ -20,12 +20,16 @@
     $topBarBgColor = \App\Models\Setting::get('top_bar_bg_color', '#111827');
     $topBarTextColor = \App\Models\Setting::get('top_bar_text_color', '#ffffff');
     $headerBgImage = \App\Models\Setting::get('header_bg_image');
+    $favicon = \App\Models\Setting::get('favicon');
 @endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    @if($favicon)
+        <link rel="icon" type="image/x-icon" href="{{ Storage::url($favicon) }}">
+    @endif
     <title>{{ isset($page) ? ($page->seo_title ?? $page->title) . ' - ' : '' }}{{ $siteName }}</title>
     <meta name="description" content="{{ isset($page) ? ($page->seo_description ?? $siteName) : $siteName }}">
     <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
@@ -67,6 +71,20 @@
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
+
+        /* Marquee Animations */
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .animate-marquee-normal { animation: marquee 30s linear infinite; }
+        .animate-marquee-slow { animation: marquee 60s linear infinite; }
+        .animate-marquee-fast { animation: marquee 15s linear infinite; }
+        .pause-marquee:hover { animation-play-state: paused; }
+
+        .marquee-shadow { text-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .marquee-glow { text-shadow: 0 0 10px currentColor; }
+        .marquee-outline { -webkit-text-stroke: 1px currentColor; color: transparent !important; }
     </style>
 </head>
 <body class="antialiased bg-gray-50 flex flex-col min-h-screen" x-data="{ mobileMenuOpen: false }">

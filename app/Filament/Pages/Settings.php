@@ -29,6 +29,7 @@ class Settings extends Page implements HasForms
         $this->data = [
             'site_name' => Setting::get('site_name', 'Pravasis IT Solution'),
             'logo' => Setting::get('logo'),
+            'favicon' => Setting::get('favicon'),
             'footer_about_text' => Setting::get('footer_about_text', 'Leading provider of customized IT solutions and professional consultancy services.'),
             'email' => Setting::get('email'),
             'phone' => Setting::get('phone'),
@@ -60,7 +61,22 @@ class Settings extends Page implements HasForms
                 Section::make('General')
                     ->schema([
                         TextInput::make('site_name')->required(),
-                        FileUpload::make('logo')->image()->disk('public')->directory('site'),
+                        Section::make('Brand Assets')
+                            ->description('Upload your company identity files.')
+                            ->columns(2)
+                            ->schema([
+                                FileUpload::make('logo')
+                                    ->label('Company Logo (Header)')
+                                    ->image()
+                                    ->disk('public')
+                                    ->directory('site'),
+                                FileUpload::make('favicon')
+                                    ->label('Browser Favicon')
+                                    ->image()
+                                    ->disk('public')
+                                    ->directory('site')
+                                    ->helperText('Visible in the browser tab (usually 32x32 or 16x16 pixels).'),
+                            ]),
                         Forms\Components\Textarea::make('footer_about_text')
                             ->label('Footer Description')
                             ->rows(3),

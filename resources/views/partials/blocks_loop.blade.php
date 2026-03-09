@@ -36,7 +36,7 @@
                 @endphp
                 <div class="w-full overflow-hidden whitespace-nowrap py-4 shadow-inner relative z-10" 
                      style="background-color: {{ $block['data']['bg_color'] ?? '#1e40af' }}; color: {{ $block['data']['text_color'] ?? '#ffffff' }};">
-                    <div class="flex items-center {{ $block['data']['speed'] ?? 'animate-marquee-normal' }} hover:pause-marquee">
+                    <div class="flex items-center w-max min-w-full {{ $block['data']['speed'] ?? 'animate-marquee-normal' }} hover:pause-marquee">
                         {{-- Render items twice for infinite loop --}}
                         @for($i = 0; $i < 2; $i++)
                             <div class="flex items-center flex-shrink-0">
@@ -132,8 +132,8 @@
                     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
                         @if(!empty($block['data']['heading']))
                             <div class="text-center mb-12">
-                                <h2 class="text-3xl font-bold text-gray-900 mb-4">{{ $block['data']['heading'] }}</h2>
-                                <div class="h-1 w-20 bg-blue-600 mx-auto rounded-full"></div>
+                                <h2 class="text-3xl md:text-4xl font-extrabold mb-4 tracking-tight" style="color: {{ $block['data']['heading_color'] ?? '#111827' }}">{{ $block['data']['heading'] }}</h2>
+                                <div class="h-1.5 w-16 bg-blue-600 mx-auto rounded-full"></div>
                             </div>
                         @endif
                         @php
@@ -179,11 +179,12 @@
                 @break
 
             @case('split_content')
-                <section id="{{ $block['data']['anchor_id'] ?? '' }}" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                    <div class="flex flex-col @if($block['data']['image_position'] == 'left') md:flex-row-reverse @else md:flex-row @endif items-center gap-10">
+                <section id="{{ $block['data']['anchor_id'] ?? '' }}" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
+                    <div class="flex flex-col @if($block['data']['image_position'] == 'left') md:flex-row-reverse @else md:flex-row @endif items-center gap-10 md:gap-16">
                         <div class="flex-grow">
-                            <h2 class="text-xl md:text-2xl font-bold mb-3 leading-tight" style="color: {{ $block['data']['heading_color'] ?? '#111827' }}">{{ $block['data']['heading'] ?? '' }}</h2>
-                            <div class="prose prose-sm prose-blue max-w-none prose-p:my-1 prose-headings:my-2" style="color: {{ $block['data']['text_color'] ?? '#374151' }}">
+                            <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4 tracking-tight" style="color: {{ $block['data']['heading_color'] ?? '#111827' }}">{{ $block['data']['heading'] ?? '' }}</h2>
+                            <div class="h-1.5 w-16 bg-blue-600 rounded-full mb-8"></div>
+                            <div class="prose prose-sm md:prose-base prose-blue max-w-none prose-p:my-2 prose-headings:my-2" style="color: {{ $block['data']['text_color'] ?? '#374151' }}">
                                 {!! $block['data']['content'] ?? '' !!}
                             </div>
                         </div>
@@ -216,8 +217,8 @@
                 @endphp
                 <section id="{{ $block['data']['anchor_id'] ?? '' }}" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
                     <div class="mb-10 text-center md:text-left">
-                        <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2 leading-tight">{{ $block['data']['heading'] ?? 'Our Services' }}</h2>
-                        <div class="h-1.5 w-12 bg-blue-600 rounded-full mb-6 mx-auto md:mx-0"></div>
+                        <h2 class="text-3xl md:text-4xl font-extrabold mb-4 tracking-tight" style="color: {{ $block['data']['heading_color'] ?? '#111827' }}">{{ $block['data']['heading'] ?? 'Our Services' }}</h2>
+                        <div class="h-1.5 w-16 bg-blue-600 rounded-full mb-8 mx-auto md:mx-0"></div>
                         @if(!empty($block['data']['description']))
                             <div class="prose prose-sm md:prose-base prose-blue text-gray-600 max-w-3xl leading-relaxed">
                                 {!! $block['data']['description'] !!}
@@ -254,11 +255,11 @@
                 @break
 
             @case('video_gallery')
-                <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+                <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
                     @if(!empty($block['data']['heading']))
                         <div class="text-center mb-12">
-                            <h2 class="text-3xl font-bold text-gray-900 mb-4">{{ $block['data']['heading'] }}</h2>
-                            <div class="h-1.5 w-20 bg-blue-600 mx-auto rounded-full"></div>
+                            <h2 class="text-3xl md:text-4xl font-extrabold mb-4 tracking-tight" style="color: {{ $block['data']['heading_color'] ?? '#111827' }}">{{ $block['data']['heading'] }}</h2>
+                            <div class="h-1.5 w-16 bg-blue-600 mx-auto rounded-full"></div>
                         </div>
                     @endif
                     @php
@@ -313,8 +314,8 @@
                 <section class="py-24 bg-gray-900 overflow-hidden">
                     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div class="text-center mb-16">
-                            <h2 class="text-4xl font-bold text-white mb-4">{{ $block['data']['heading'] ?? 'What Our Clients Say' }}</h2>
-                            <div class="h-1.5 w-20 bg-blue-500 mx-auto rounded-full"></div>
+                            <h2 class="text-3xl md:text-4xl font-extrabold mb-4 tracking-tight" style="color: {{ $block['data']['heading_color'] ?? '#ffffff' }}">{{ $block['data']['heading'] ?? 'What Our Clients Say' }}</h2>
+                            <div class="h-1.5 w-16 bg-blue-500 mx-auto rounded-full"></div>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                             @foreach($block['data']['items'] as $item)
@@ -445,11 +446,11 @@
                 <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
                     @if(!empty($block['data']['heading']))
                         <div class="text-center mb-16">
-                            <h2 class="{{ $block['data']['heading_size'] ?? 'text-3xl md:text-4xl' }} font-bold text-gray-900 mb-4">{{ $block['data']['heading'] }}</h2>
+                            <h2 class="text-3xl md:text-4xl font-extrabold mb-4 tracking-tight" style="color: {{ $block['data']['heading_color'] ?? '#111827' }}">{{ $block['data']['heading'] }}</h2>
                             @if(!empty($block['data']['subheading']))
-                                <p class="text-gray-600 max-w-2xl mx-auto">{{ $block['data']['subheading'] }}</p>
+                                <p class="text-gray-500 max-w-2xl mx-auto text-lg">{{ $block['data']['subheading'] }}</p>
                             @endif
-                            <div class="h-1.5 w-20 bg-blue-600 mx-auto rounded-full mt-6"></div>
+                            <div class="h-1.5 w-16 bg-blue-600 mx-auto rounded-full mt-6"></div>
                         </div>
                     @endif
                     <div class="grid grid-cols-1 {{ $gridClasses }} gap-10">
@@ -483,15 +484,15 @@
                 @break
 
             @case('services_with_docs')
-                <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20 flex flex-col lg:flex-row gap-10">
+                <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20 flex flex-col lg:flex-row gap-10 md:gap-16">
                     <div class="flex-1">
                         @php 
                             $servicesBlock = $block['services'];
                             $items = $servicesBlock['data']['items'] ?? [];
                         @endphp
                         <div class="mb-10 text-center md:text-left">
-                            <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2 leading-tight">{{ $servicesBlock['data']['heading'] ?? 'Our Services' }}</h2>
-                            <div class="h-1.5 w-12 bg-blue-600 rounded-full mb-6 mx-auto md:mx-0"></div>
+                            <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4 tracking-tight">{{ $servicesBlock['data']['heading'] ?? 'Our Services' }}</h2>
+                            <div class="h-1.5 w-16 bg-blue-600 rounded-full mb-8 mx-auto md:mx-0"></div>
                             @if(!empty($servicesBlock['data']['description']))
                                 <div class="prose prose-sm md:prose-base prose-blue text-gray-600 max-w-3xl leading-relaxed">
                                     {!! $servicesBlock['data']['description'] !!}
