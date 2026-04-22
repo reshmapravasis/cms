@@ -86,8 +86,7 @@
                 @if(!empty($block['data']['image']))
                     <figure class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex flex-col items-center">
                         <img src="{{ Storage::url($block['data']['image']) }}" 
-                             style="width: {{ $block['data']['image_width'] ?? '800' }}px; max-width: 100%;"
-                             class="h-auto rounded-3xl shadow-2xl hover:shadow-blue-500/20 transition-shadow duration-500" 
+                             class="w-full max-w-4xl h-auto rounded-3xl shadow-2xl hover:shadow-blue-500/20 transition-shadow duration-500" 
                              alt="{{ $block['data']['alt'] ?? '' }}">
                         @if(!empty($block['data']['caption']))
                             <figcaption class="mt-4 text-center text-gray-500 italic font-medium px-4">
@@ -190,7 +189,7 @@
                         </div>
                         <div class="w-full md:w-auto md:min-w-[200px] flex justify-center">
                             @if(!empty($block['data']['image']))
-                                <div class="relative group" style="width: {{ $block['data']['image_width'] ?? '250' }}px; max-width: 100%;">
+                                <div class="relative group w-full md:w-[350px]">
                                     <div class="absolute -inset-2 bg-gradient-to-r from-blue-600 to-teal-500 rounded-2xl opacity-10 group-hover:opacity-20 transition duration-500"></div>
                                     <img src="{{ Storage::url($block['data']['image']) }}" 
                                          class="relative w-full h-auto rounded-2xl shadow-xl object-contain hover:scale-[1.02] transition duration-500" 
@@ -248,6 +247,14 @@
                                         @endif
                                     </div>
                                 @endforeach
+                            </div>
+                            <div class="mt-12 text-center md:text-left">
+                                <a href="/services" class="inline-flex items-center gap-2 px-8 py-4 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 transition-all shadow-lg hover:shadow-blue-500/30">
+                                    Explore All Services
+                                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                    </svg>
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -513,6 +520,14 @@
                                     </div>
                                 </div>
                             @endforeach
+                        </div>
+                        <div class="mt-10">
+                            <a href="/services" class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-all shadow-lg hover:shadow-blue-500/20 text-sm">
+                                Explore All Services
+                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                </svg>
+                            </a>
                         </div>
                     </div>
                     <div class="w-full lg:w-80 flex-shrink-0">

@@ -34,12 +34,20 @@ class MenuResource extends Resource
                     ->live(),
                 Forms\Components\TextInput::make('label')
                     ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('url')
-                    ->required()
-                    ->label('URL / Path')
-                    ->placeholder('/services or http://example.com')
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->live(onBlur: true)
+                    ->afterStateUpdated(function (Forms\Get $get, Forms\Set $set, ?string $state) {
+                        if (!$state) return;
+                        
+                        $slug = \Illuminate\Support\Str::slug($state);
+                        if ($slug === 'home') {
+                            $set('url', '/');
+                        } else {
+                            $set('url', '/' . $slug);
+                        }
+                    }),
+                Forms\Components\Hidden::make('url')
+                    ->required(),
                 Forms\Components\Select::make('parent_id')
                     ->label('Parent Item')
                     ->options(function (Forms\Get $get) {
@@ -67,7 +75,6 @@ class MenuResource extends Resource
                         'footer' => 'warning',
                     }),
                 Tables\Columns\TextColumn::make('label')->searchable(),
-                Tables\Columns\TextColumn::make('url')->searchable(),
                 Tables\Columns\TextColumn::make('parent.label')->label('Parent'),
                 Tables\Columns\TextColumn::make('order_column')->label('Order')->sortable(),
             ])

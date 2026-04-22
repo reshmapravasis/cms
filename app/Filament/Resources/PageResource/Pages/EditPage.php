@@ -18,6 +18,11 @@ class EditPage extends EditRecord
         ];
     }
 
+    public function getTitle(): string
+    {
+        return "Edit Page: {$this->record->title}";
+    }
+
     protected function getRedirectUrl(): string
     {
         return $this->getResource()::getUrl('index');

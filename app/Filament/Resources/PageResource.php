@@ -20,6 +20,8 @@ class PageResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-document-duplicate';
 
+    protected static ?string $recordTitleAttribute = 'title';
+
     public static function form(Form $form): Form
     {
         return $form
@@ -30,7 +32,7 @@ class PageResource extends Resource
                             ->schema([
                                  Forms\Components\Select::make('type')
                                     ->options([
-                                        'page' => 'Static Page',
+                                        'page' => 'Normal Page',
                                         'post' => 'Blog Post',
                                     ])
                                     ->default('page')
@@ -38,11 +40,7 @@ class PageResource extends Resource
                                     ->live(),
                                 Forms\Components\TextInput::make('title')
                                     ->required()
-                                    ->live(onBlur: true)
-                                    ->afterStateUpdated(fn (string $operation, $state, Forms\Set $set) => $operation === 'create' ? $set('slug', \Illuminate\Support\Str::slug($state)) : null),
-                                Forms\Components\TextInput::make('slug')
-                                    ->required()
-                                    ->unique(Page::class, 'slug', ignoreRecord: true),
+                                    ->live(onBlur: true),
                                 
                                 Forms\Components\FileUpload::make('featured_image')
                                     ->image()
@@ -67,7 +65,7 @@ class PageResource extends Resource
                                 Forms\Components\Builder::make('content')
                                     ->blocks([
                                         Forms\Components\Builder\Block::make('marquee')
-                                            ->label('📢 News Ticker / Marquee')
+                                            ->label('📢 News Ticker / Moving Text')
                                             ->schema([
                                                 Forms\Components\Repeater::make('items')
                                                     ->label('Ticker Items')
@@ -75,8 +73,8 @@ class PageResource extends Resource
                                                         Forms\Components\TextInput::make('text')
                                                             ->required()
                                                             ->placeholder('Enter news or update message'),
-                                                        Forms\Components\TextInput::make('link')
-                                                            ->placeholder('Link URL (optional)'),
+                                                        // Forms\Components\TextInput::make('link')
+                                                        //     ->placeholder('Link URL (optional)'),
                                                     ])
                                                     ->defaultItems(1)
                                                     ->reorderable()
@@ -155,15 +153,15 @@ class PageResource extends Resource
                                                 Forms\Components\TextInput::make('subheading'),
                                                 Forms\Components\ColorPicker::make('subheading_color')
                                                     ->default('#dbeafe'),
-                                                Forms\Components\Select::make('text_size')
-                                                    ->label('Subheading Size')
-                                                    ->options([
-                                                        'text-base' => 'Small',
-                                                        'text-lg' => 'Normal',
-                                                        'text-xl' => 'Medium',
-                                                        'text-2xl' => 'Large',
-                                                    ])
-                                                    ->default('text-xl'),
+                                                // Forms\Components\Select::make('text_size')
+                                                //     ->label('Subheading Size')
+                                                //     ->options([
+                                                //         'text-base' => 'Small',
+                                                //         'text-lg' => 'Normal',
+                                                //         'text-xl' => 'Medium',
+                                                //         'text-2xl' => 'Large',
+                                                //     ])
+                                                //     ->default('text-xl'),
                                                 Forms\Components\FileUpload::make('background_image')
                                                     ->image()
                                                     ->disk('public')
@@ -177,13 +175,6 @@ class PageResource extends Resource
                                                     ->required(),
                                                 Forms\Components\TextInput::make('alt'),
                                                 Forms\Components\TextInput::make('caption'),
-                                                Forms\Components\TextInput::make('image_width')
-                                                    ->label('Image Width (px)')
-                                                    ->numeric()
-                                                    ->default(800)
-                                                    ->minValue(10)
-                                                    ->maxValue(1200)
-                                                    ->step(1),
                                             ]),
                                         Forms\Components\Builder\Block::make('video')
                                             ->schema([
@@ -296,20 +287,13 @@ class PageResource extends Resource
                                                             ->disk('public')
                                                             ->directory('content')
                                                             ->required(),
-                                                        Forms\Components\Select::make('image_position')
+                                                         Forms\Components\Select::make('image_position')
                                                             ->options([
                                                                 'left' => 'Image Left',
                                                                 'right' => 'Image Right',
                                                             ])
                                                             ->default('right')
                                                             ->required(),
-                                                        Forms\Components\TextInput::make('image_width')
-                                                            ->label('Image Width (px)')
-                                                            ->numeric()
-                                                            ->default(250)
-                                                            ->minValue(10)
-                                                            ->maxValue(800)
-                                                            ->step(1),
                                                     ]),
                                             ]),
                                         Forms\Components\Builder\Block::make('services')
@@ -317,7 +301,6 @@ class PageResource extends Resource
                                             ->schema([
                                                 Forms\Components\Grid::make(2)
                                                     ->schema([
-                                                        Forms\Components\TextInput::make('anchor_id')->label('Anchor ID (e.g. services-section)'),
                                                         Forms\Components\ColorPicker::make('heading_color')
                                                             ->default('#111827'),
                                                         Forms\Components\TextInput::make('heading')->default('Our Services')->columnSpanFull(),
@@ -339,13 +322,6 @@ class PageResource extends Resource
                                                             ->image()
                                                             ->disk('public')
                                                             ->directory('services'),
-                                                        Forms\Components\TextInput::make('image_width')
-                                                            ->label('Section Image Width (px)')
-                                                            ->numeric()
-                                                            ->default(120)
-                                                            ->minValue(10)
-                                                            ->maxValue(500)
-                                                            ->step(1),
                                                         Forms\Components\Select::make('columns')
                                                             ->label('Items per Row (Desktop)')
                                                             ->options([
@@ -357,11 +333,6 @@ class PageResource extends Resource
                                                             ])
                                                             ->default('3')
                                                             ->required(),
-                                                        Forms\Components\TextInput::make('view_all_link')
-                                                            ->label('Section Button Link (e.g. /services)'),
-                                                        Forms\Components\TextInput::make('view_all_text')
-                                                            ->label('Section Button Text')
-                                                            ->default('Explore All Services'),
                                                     ]),
                                                 Forms\Components\Repeater::make('items')
                                                     ->label('Service Items')
@@ -375,7 +346,6 @@ class PageResource extends Resource
                                                             ->image()
                                                             ->disk('public')
                                                             ->directory('services'),
-                                                         Forms\Components\TextInput::make('link')->label('Item Read More Link'),
                                                     ])
                                                     ->grid(3)
                                                     ->collapsible(),
@@ -570,7 +540,6 @@ class PageResource extends Resource
                         'post' => 'success',
                     }),
                 Tables\Columns\TextColumn::make('parent.title')->label('Parent Page'),
-                Tables\Columns\TextColumn::make('slug')->searchable(),
                 Tables\Columns\ToggleColumn::make('is_published'),
                 Tables\Columns\TextColumn::make('updated_at')->dateTime(),
             ])
