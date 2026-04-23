@@ -78,7 +78,7 @@
 
              @case('rich_text')
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-16 prose prose-sm sm:prose-base md:prose-lg lg:prose-xl prose-blue max-w-none prose-img:rounded-xl prose-img:shadow-lg leading-relaxed md:leading-loose" style="color: {{ $block['data']['text_color'] ?? '#111827' }}">
-                    {!! is_array($block['data']['content'] ?? '') ? '' : ($block['data']['content'] ?? '') !!}
+                    {!! is_string($block['data']['content'] ?? '') ? ($block['data']['content'] ?? '') : tiptap_converter()->asHTML($block['data']['content'] ?? '') !!}
                 </div>
                 @break
 
@@ -139,12 +139,12 @@
                         @php
                             $cols = $block['data']['columns'] ?? '3';
                             $gridClass = [
-                                '2' => 'sm:grid-cols-2',
-                                '3' => 'sm:grid-cols-2 lg:grid-cols-3',
-                                '4' => 'sm:grid-cols-2 lg:grid-cols-4',
-                            ][$cols] ?? 'sm:grid-cols-2 lg:grid-cols-3';
+                                '2' => 'grid-cols-2',
+                                '3' => 'grid-cols-2 md:grid-cols-3',
+                                '4' => 'grid-cols-2 md:grid-cols-4',
+                            ][$cols] ?? 'grid-cols-2 md:grid-cols-3';
                         @endphp
-                        <div class="grid grid-cols-1 {{ $gridClass }} gap-8">
+                        <div class="grid {{ $gridClass }} gap-8">
                             @php 
                                 $galleryImages = collect($block['data']['images'])->map(function($item) {
                                     return [
@@ -179,16 +179,27 @@
                 @break
 
             @case('split_content')
+                @php
+                    $imageWidth = $block['data']['image_width'] ?? 'w-1/2';
+                    $textWidthMap = [
+                        'w-1/4' => 'sm:w-3/4',
+                        'w-1/3' => 'sm:w-2/3',
+                        'w-1/2' => 'sm:w-1/2',
+                        'w-2/3' => 'sm:w-1/3',
+                        'w-3/4' => 'sm:w-1/4',
+                    ];
+                    $textWidth = $textWidthMap[$imageWidth] ?? 'sm:w-1/2';
+                @endphp
                 <section id="{{ $block['data']['anchor_id'] ?? '' }}" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
-                    <div class="flex flex-col @if($block['data']['image_position'] == 'left') md:flex-row-reverse @else md:flex-row @endif items-center gap-10 md:gap-16">
-                        <div class="w-full md:flex-1">
+                    <div class="flex flex-col @if(($block['data']['image_position'] ?? 'right') == 'left') sm:flex-row-reverse @else sm:flex-row @endif items-center gap-10 md:gap-16">
+                        <div class="w-full {{ $textWidth }}">
                             <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4 tracking-tight" style="color: {{ $block['data']['heading_color'] ?? '#111827' }}">{{ $block['data']['heading'] ?? '' }}</h2>
                             <div class="h-1.5 w-16 bg-blue-600 rounded-full mb-8"></div>
                             <div class="prose prose-sm md:prose-base prose-blue max-w-none prose-p:my-2 prose-headings:my-2" style="color: {{ $block['data']['text_color'] ?? '#374151' }}">
-                                {!! is_array($block['data']['content'] ?? '') ? '' : ($block['data']['content'] ?? '') !!}
+                                {!! is_string($block['data']['content'] ?? '') ? ($block['data']['content'] ?? '') : tiptap_converter()->asHTML($block['data']['content'] ?? '') !!}
                             </div>
                         </div>
-                        <div class="w-full md:flex-1 flex justify-center">
+                        <div class="w-full sm:{{ $imageWidth }} flex justify-center">
                             @if(!empty($block['data']['image']))
                                 <div class="relative group w-full">
                                     <div class="absolute -inset-2 bg-gradient-to-r from-blue-600 to-teal-500 rounded-2xl opacity-10 group-hover:opacity-20 transition duration-500"></div>
@@ -203,16 +214,27 @@
                 @break
 
             @case('split_video_content')
+                @php
+                    $videoWidth = $block['data']['video_width'] ?? 'w-1/2';
+                    $textWidthMap = [
+                        'w-1/4' => 'sm:w-3/4',
+                        'w-1/3' => 'sm:w-2/3',
+                        'w-1/2' => 'sm:w-1/2',
+                        'w-2/3' => 'sm:w-1/3',
+                        'w-3/4' => 'sm:w-1/4',
+                    ];
+                    $textWidth = $textWidthMap[$videoWidth] ?? 'sm:w-1/2';
+                @endphp
                 <section id="{{ $block['data']['anchor_id'] ?? '' }}" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
-                    <div class="flex flex-col @if($block['data']['video_position'] == 'left') md:flex-row-reverse @else md:flex-row @endif items-center gap-10 md:gap-16">
-                        <div class="w-full md:flex-1">
+                    <div class="flex flex-col @if(($block['data']['video_position'] ?? 'right') == 'left') sm:flex-row-reverse @else sm:flex-row @endif items-center gap-10 md:gap-16">
+                        <div class="w-full {{ $textWidth }}">
                             <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4 tracking-tight" style="color: {{ $block['data']['heading_color'] ?? '#111827' }}">{{ $block['data']['heading'] ?? '' }}</h2>
                             <div class="h-1.5 w-16 bg-blue-600 rounded-full mb-8"></div>
                             <div class="prose prose-sm md:prose-base prose-blue max-w-none prose-p:my-2 prose-headings:my-2" style="color: {{ $block['data']['text_color'] ?? '#374151' }}">
-                                {!! is_array($block['data']['content'] ?? '') ? '' : ($block['data']['content'] ?? '') !!}
+                                {!! is_string($block['data']['content'] ?? '') ? ($block['data']['content'] ?? '') : tiptap_converter()->asHTML($block['data']['content'] ?? '') !!}
                             </div>
                         </div>
-                        <div class="w-full md:flex-1 flex justify-center">
+                        <div class="w-full sm:{{ $videoWidth }} flex justify-center">
                             <div class="relative group w-full aspect-video">
                                 <div class="absolute -inset-2 bg-gradient-to-r from-blue-600 to-teal-500 rounded-2xl opacity-10 group-hover:opacity-20 transition duration-500"></div>
                                 <div class="relative w-full h-full rounded-2xl overflow-hidden shadow-xl bg-black">
@@ -255,12 +277,12 @@
                     $columns = $block['data']['columns'] ?? '3';
                     $showSidebar = !empty($block['data']['show_sidebar']);
                     $colClass = [
-                        '2' => 'lg:grid-cols-2',
-                        '3' => 'lg:grid-cols-3',
-                        '4' => 'lg:grid-cols-2 xl:grid-cols-4',
-                        '5' => 'lg:grid-cols-3 xl:grid-cols-5',
-                        '6' => 'lg:grid-cols-3 xl:grid-cols-6',
-                    ][$columns] ?? 'lg:grid-cols-3';
+                        '2' => 'md:grid-cols-2',
+                        '3' => 'md:grid-cols-3',
+                        '4' => 'md:grid-cols-2 lg:grid-cols-4',
+                        '5' => 'md:grid-cols-3 lg:grid-cols-5',
+                        '6' => 'md:grid-cols-3 lg:grid-cols-6',
+                    ][$columns] ?? 'md:grid-cols-3';
                 @endphp
                 <section id="{{ $block['data']['anchor_id'] ?? '' }}" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
                     <div class="mb-10 text-center md:text-left">
@@ -268,7 +290,7 @@
                         <div class="h-1.5 w-16 bg-blue-600 rounded-full mb-8 mx-auto md:mx-0"></div>
                         @if(!empty($block['data']['description']))
                             <div class="prose prose-sm md:prose-base prose-blue text-gray-600 max-w-3xl leading-relaxed">
-                                {!! is_array($block['data']['description'] ?? '') ? '' : ($block['data']['description'] ?? '') !!}
+                                {!! is_string($block['data']['description'] ?? '') ? ($block['data']['description'] ?? '') : tiptap_converter()->asHTML($block['data']['description'] ?? '') !!}
                             </div>
                         @endif
                     </div>
@@ -290,7 +312,7 @@
                                         @endif
                                         @if(!empty($item['description']))
                                             <div class="text-sm text-gray-600 leading-relaxed prose prose-sm prose-blue max-w-none prose-p:my-1 text-center">
-                                                {!! is_array($item['description'] ?? '') ? '' : ($item['description'] ?? '') !!}
+                                                {!! is_string($item['description'] ?? '') ? ($item['description'] ?? '') : tiptap_converter()->asHTML($item['description'] ?? '') !!}
                                             </div>
                                         @endif
                                     </div>
@@ -372,11 +394,11 @@
                             <h2 class="text-3xl md:text-4xl font-extrabold mb-4 tracking-tight" style="color: {{ $block['data']['heading_color'] ?? '#ffffff' }}">{{ $block['data']['heading'] ?? 'What Our Clients Say' }}</h2>
                             <div class="h-1.5 w-16 bg-blue-500 mx-auto rounded-full"></div>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
                             @foreach($block['data']['items'] as $item)
                                 <div class="p-8 bg-white/5 backdrop-blur-lg border border-white/10 rounded-3xl">
                                     <div class="text-gray-300 italic mb-8 prose prose-sm prose-invert max-w-none">
-                                        {!! is_array($item['quote'] ?? '') ? '' : ($item['quote'] ?? '') !!}
+                                        {!! is_string($item['quote'] ?? '') ? ($item['quote'] ?? '') : tiptap_converter()->asHTML($item['quote'] ?? '') !!}
                                     </div>
                                     <div class="flex items-center gap-4">
                                         @if(!empty($item['avatar']))
@@ -460,7 +482,7 @@
 
             @case('stats')
                 <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 bg-white shadow-inner">
-                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-12 text-center">
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-12 text-center">
                         @foreach($block['data']['items'] as $item)
                             <div class="stats-item flex flex-col items-center">
                                 <div class="text-5xl md:text-6xl font-sans font-black text-[#001a72] mb-3 flex items-center justify-center">
@@ -550,7 +572,7 @@
                             <div class="h-1.5 w-16 bg-blue-600 rounded-full mb-8 mx-auto md:mx-0"></div>
                             @if(!empty($servicesBlock['data']['description']))
                                 <div class="prose prose-sm md:prose-base prose-blue text-gray-600 max-w-3xl leading-relaxed">
-                                    {!! is_array($servicesBlock['data']['description'] ?? '') ? '' : ($servicesBlock['data']['description'] ?? '') !!}
+                                    {!! is_string($servicesBlock['data']['description'] ?? '') ? ($servicesBlock['data']['description'] ?? '') : tiptap_converter()->asHTML($servicesBlock['data']['description'] ?? '') !!}
                                 </div>
                             @endif
                         </div>
@@ -564,7 +586,7 @@
                                     @endif
                                     <h3 class="text-base font-bold text-gray-900 mb-2">{{ $item['title'] }}</h3>
                                     <div class="text-xs text-gray-600 line-clamp-3">
-                                        {!! is_array($item['description'] ?? '') ? '' : ($item['description'] ?? '') !!}
+                                        {!! is_string($item['description'] ?? '') ? ($item['description'] ?? '') : tiptap_converter()->asHTML($item['description'] ?? '') !!}
                                     </div>
                                 </div>
                             @endforeach

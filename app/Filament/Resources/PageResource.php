@@ -3,16 +3,15 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\PageResource\Pages;
-use App\Filament\Resources\PageResource\RelationManagers;
 use App\Models\Page;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 use FilamentTiptapEditor\TiptapEditor;
 use FilamentTiptapEditor\Enums\TiptapOutput;
+use Filament\Forms\Components\Actions\Action;
 
 class PageResource extends Resource
 {
@@ -165,6 +164,15 @@ class PageResource extends Resource
                                                     Forms\Components\ColorPicker::make('text_color')->default('#374151'),
                                                     Forms\Components\FileUpload::make('image')->image()->disk('public')->directory('split-images'),
                                                     Forms\Components\Select::make('image_position')->options(['left' => 'Left', 'right' => 'Right'])->default('right'),
+                                                    Forms\Components\Select::make('image_width')
+                                                        ->options([
+                                                            'w-1/4' => 'Small (25%)',
+                                                            'w-1/3' => 'Medium (33%)',
+                                                            'w-1/2' => 'Half (50%)',
+                                                            'w-2/3' => 'Large (66%)',
+                                                            'w-3/4' => 'Huge (75%)',
+                                                        ])
+                                                        ->default('w-1/2'),
                                                     Forms\Components\TextInput::make('anchor_id')->label('Anchor ID (for jumping to section)')->placeholder('e.g. about-us'),
                                                 ]),
                                             ]),
@@ -181,6 +189,15 @@ class PageResource extends Resource
                                                     Forms\Components\TextInput::make('video_url')->visible(fn (Forms\Get $get) => $get('video_type') === 'url'),
                                                     Forms\Components\FileUpload::make('video_file')->visible(fn (Forms\Get $get) => $get('video_type') === 'file'),
                                                     Forms\Components\Select::make('video_position')->options(['left' => 'Left', 'right' => 'Right'])->default('right'),
+                                                    Forms\Components\Select::make('video_width')
+                                                        ->options([
+                                                            'w-1/4' => 'Small (25%)',
+                                                            'w-1/3' => 'Medium (33%)',
+                                                            'w-1/2' => 'Half (50%)',
+                                                            'w-2/3' => 'Large (66%)',
+                                                            'w-3/4' => 'Huge (75%)',
+                                                        ])
+                                                        ->default('w-1/2'),
                                                     Forms\Components\TextInput::make('anchor_id'),
                                                 ]),
                                             ]),
@@ -188,13 +205,26 @@ class PageResource extends Resource
                                         Forms\Components\Builder\Block::make('services')
                                             ->label(fn (?array $state) => '🛠️ Services Grid' . ($state ? ': ' . ($state['heading'] ?? '') : ''))
                                             ->schema([
-                                                Forms\Components\TextInput::make('heading')->default('Our Services'),
+                                                Forms\Components\Grid::make(3)->schema([
+                                                    Forms\Components\TextInput::make('heading')->default('Our Services'),
+                                                    Forms\Components\Select::make('columns')
+                                                        ->options([
+                                                            '2' => '2 Columns',
+                                                            '3' => '3 Columns',
+                                                            '4' => '4 Columns',
+                                                            '5' => '5 Columns',
+                                                            '6' => '6 Columns',
+                                                        ])->default('3'),
+                                                    Forms\Components\ColorPicker::make('heading_color')->default('#111827'),
+                                                ]),
+                                                TiptapEditor::make('description')->output(TiptapOutput::Html),
                                                 Forms\Components\Repeater::make('items')
                                                     ->schema([
                                                         Forms\Components\TextInput::make('title'),
                                                         TiptapEditor::make('description')->output(TiptapOutput::Html),
                                                         Forms\Components\FileUpload::make('icon'),
                                                     ])->grid(3),
+                                                Forms\Components\TextInput::make('anchor_id'),
                                             ]),
 
                                         Forms\Components\Builder\Block::make('testimonials')
@@ -213,10 +243,74 @@ class PageResource extends Resource
                                             ->schema([
                                                 Forms\Components\TextInput::make('heading')->default('Contact Us'),
                                             ]),
+
+                                        Forms\Components\Builder\Block::make('gallery')
+                                            ->label(fn (?array $state) => '🖼️ Photo Gallery' . ($state ? ': ' . ($state['heading'] ?? '') : ''))
+                                            ->schema([
+                                                Forms\Components\TextInput::make('heading'),
+                                                Forms\Components\Select::make('columns')
+                                                    ->options([
+                                                        '2' => '2 Columns',
+                                                        '3' => '3 Columns',
+                                                        '4' => '4 Columns',
+                                                    ])->default('3'),
+                                                Forms\Components\Repeater::make('images')
+                                                    ->schema([
+                                                        Forms\Components\FileUpload::make('image')->image()->disk('public')->directory('gallery'),
+                                                        Forms\Components\TextInput::make('label'),
+                                                    ])->grid(2),
+                                            ]),
+
+                                        Forms\Components\Builder\Block::make('stats')
+                                            ->label(fn (?array $state) => '📊 Stats Overview' . ($state ? ': ' . count($state['items'] ?? []) . ' items' : ''))
+                                            ->schema([
+                                                Forms\Components\Repeater::make('items')
+                                                    ->schema([
+                                                        Forms\Components\TextInput::make('label')->placeholder('e.g. Clients'),
+                                                        Forms\Components\TextInput::make('number')->placeholder('e.g. 500+'),
+                                                    ])->grid(2),
+                                            ]),
+
+                                        Forms\Components\Builder\Block::make('info_cards')
+                                            ->label(fn (?array $state) => '🗂️ Info Cards' . ($state ? ': ' . count($state['items'] ?? []) . ' items' : ''))
+                                            ->schema([
+                                                Forms\Components\Repeater::make('items')
+                                                    ->schema([
+                                                        Forms\Components\TextInput::make('title'),
+                                                        Forms\Components\Textarea::make('description'),
+                                                        Forms\Components\ColorPicker::make('bg_color')->default('#001a72'),
+                                                        Forms\Components\ColorPicker::make('text_color')->default('#ffffff'),
+                                                    ])->grid(2),
+                                            ]),
                                     ])
                                     ->collapsible()
                                     ->cloneable()
                                     ->blockNumbers(false)
+                                    ->extraItemActions([
+                                        Action::make('preview')
+                                            ->icon('heroicon-m-eye')
+                                            ->label('Preview')
+                                            ->modalHeading('Section Preview')
+                                            ->modalWidth('7xl')
+                                            ->modalSubmitAction(false)
+                                            ->modalCancelAction(false)
+                                            ->modalContent(fn (array $state, array $arguments, Forms\Components\Builder $component): \Illuminate\Contracts\View\View => (function() use ($state, $arguments) {
+                                                $itemKey = $arguments['item'];
+                                                $selectedItem = $state[$itemKey] ?? null;
+                                                
+                                                if (! $selectedItem) {
+                                                    return view('filament.forms.components.block-preview', ['blockType' => 'unknown']);
+                                                }
+                                                
+                                                return view(
+                                                    'filament.forms.components.block-preview',
+                                                    array_merge(
+                                                        ['blockType' => $selectedItem['type'] ?? 'unknown'],
+                                                        $selectedItem['data'] ?? []
+                                                    )
+                                                );
+                                            })()),
+                                    ])
                                     ->columnSpanFull(),
                             ]),
 
