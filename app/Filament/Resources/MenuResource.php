@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\MenuResource\Pages;
 use App\Filament\Resources\MenuResource\RelationManagers;
 use App\Models\Menu;
+use App\Models\Page;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -31,36 +32,81 @@ class MenuResource extends Resource
                     ])
                     ->required()
                     ->default('header')
-                    ->live(),
+                    ->live()
+                    ->afterStateUpdated(function (Forms\Set $set, $state) {
+                        $set('order_column', (Menu::where('location', $state)->max('order_column') ?? 0) + 1);
+                    }),
+                Forms\Components\Select::make('page_id')
+                    ->label('Select Page')
+                    ->options(function (Forms\Get $get) {
+                        $location = $get('location') ?? 'header';
+                        $pages = Page::all();
+                        $options = [];
+                        foreach ($pages as $page) {
+                            $url = ($page->slug === 'home') ? '/' : '/' . $page->slug;
+                            $menu = Menu::where('location', $location)->where('url', $url)->first();
+                            $label = $page->title;
+                            if ($menu) {
+                                $label .= " (Current Position: {$menu->order_column})";
+                            }
+                            $options[$page->id] = $label;
+                        }
+                        return $options;
+                    })
+                    ->required()
+                    ->searchable()
+                    ->live()
+                    ->afterStateHydrated(function (Forms\Set $set, $state, $record) {
+                        if ($record && $record->url) {
+                            $slug = ltrim($record->url, '/');
+                            if ($slug === '') $slug = 'home';
+                            $page = Page::where('slug', $slug)->first();
+                            if ($page) {
+                                $set('page_id', $page->id);
+                            }
+                        }
+                    })
+                    ->afterStateUpdated(function (Forms\Set $set, Forms\Get $get, $state) {
+                        if ($state) {
+                            $page = Page::find($state);
+                            if ($page) {
+                                $set('label', $page->title);
+                                $url = ($page->slug === 'home') ? '/' : '/' . $page->slug;
+                                $set('url', $url);
+
+                                // Check if this page already exists in the selected location
+                                $location = $get('location') ?? 'header';
+                                $existingMenu = Menu::where('location', $location)->where('url', $url)->first();
+                                
+                                if ($existingMenu) {
+                                    // Use existing order if it already exists
+                                    $set('order_column', $existingMenu->order_column);
+                                } else {
+                                    // Otherwise use next available number
+                                    $set('order_column', (Menu::where('location', $location)->max('order_column') ?? 0) + 1);
+                                }
+                            }
+                        }
+                    })
+                    ->dehydrated(false),
+                Forms\Components\TextInput::make('order_column')
+                    ->numeric()
+                    ->default(fn () => (Menu::where('location', 'header')->max('order_column') ?? 0) + 1)
+                    ->label('Display Order'),
                 Forms\Components\TextInput::make('label')
                     ->required()
-                    ->maxLength(255)
-                    ->live(onBlur: true)
-                    ->afterStateUpdated(function (Forms\Get $get, Forms\Set $set, ?string $state) {
-                        if (!$state) return;
-                        
-                        $slug = \Illuminate\Support\Str::slug($state);
-                        if ($slug === 'home') {
-                            $set('url', '/');
-                        } else {
-                            $set('url', '/' . $slug);
-                        }
-                    }),
+                    ->maxLength(255),
                 Forms\Components\Hidden::make('url')
                     ->required(),
                 Forms\Components\Select::make('parent_id')
                     ->label('Parent Item')
                     ->options(function (Forms\Get $get) {
-                        return \App\Models\Menu::where('location', $get('location'))
+                        return Menu::where('location', $get('location'))
                             ->whereNull('parent_id')
                             ->pluck('label', 'id');
                     })
                     ->placeholder('None (Top Level)')
                     ->searchable(),
-                Forms\Components\TextInput::make('order_column')
-                    ->numeric()
-                    ->default(0)
-                    ->label('Display Order'),
             ]);
     }
 

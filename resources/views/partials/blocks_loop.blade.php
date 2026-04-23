@@ -61,7 +61,7 @@
             @case('hero')
                 <section class="relative min-h-[350px] md:h-[450px] flex items-center justify-center bg-blue-900 overflow-hidden">
                     @if(isset($block['data']['background_image']))
-                        <img src="{{ Storage::url($block['data']['background_image']) }}" 
+                        <img src="{{ Storage::url(\Illuminate\Support\Arr::first((array)($block['data']['background_image'] ?? ''))) }}" 
                              class="absolute inset-0 w-full h-full object-cover opacity-60" 
                              alt="{{ $block['data']['heading'] ?? 'Hero Image' }}">
                     @endif
@@ -78,15 +78,16 @@
 
              @case('rich_text')
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-16 prose prose-sm sm:prose-base md:prose-lg lg:prose-xl prose-blue max-w-none prose-img:rounded-xl prose-img:shadow-lg leading-relaxed md:leading-loose" style="color: {{ $block['data']['text_color'] ?? '#111827' }}">
-                    {!! $block['data']['content'] !!}
+                    {!! is_array($block['data']['content'] ?? '') ? '' : ($block['data']['content'] ?? '') !!}
                 </div>
                 @break
 
             @case('image')
                 @if(!empty($block['data']['image']))
                     <figure class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex flex-col items-center">
-                        <img src="{{ Storage::url($block['data']['image']) }}" 
-                             class="w-full max-w-4xl h-auto rounded-3xl shadow-2xl hover:shadow-blue-500/20 transition-shadow duration-500" 
+                        <img src="{{ Storage::url(\Illuminate\Support\Arr::first((array)($block['data']['image'] ?? ''))) }}" 
+                             class="w-full h-auto rounded-3xl shadow-2xl hover:shadow-blue-500/20 transition-shadow duration-500" 
+                             style="max-width: {{ $block['data']['width_percent'] ?? 100 }}%;"
                              alt="{{ $block['data']['alt'] ?? '' }}">
                         @if(!empty($block['data']['caption']))
                             <figcaption class="mt-4 text-center text-gray-500 italic font-medium px-4">
@@ -99,7 +100,7 @@
 
             @case('video')
                 @if(!empty($block['data']['url']))
-                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+                    <div class="mx-auto px-4 sm:px-6 lg:px-8 py-16" style="max-width: {{ $block['data']['width_percent'] ?? 100 }}%;">
                         <div class="relative aspect-video rounded-3xl overflow-hidden shadow-2xl bg-black group">
                             @php
                                 $videoId = '';
@@ -147,7 +148,7 @@
                             @php 
                                 $galleryImages = collect($block['data']['images'])->map(function($item) {
                                     return [
-                                        'src' => Storage::url(is_array($item) ? ($item['image'] ?? '') : $item),
+                                        'src' => Storage::url(\Illuminate\Support\Arr::first((array)($item['image'] ?? ''))),
                                         'type' => 'image',
                                         'title' => $item['label'] ?? ''
                                     ];
@@ -158,7 +159,7 @@
                                     @php $imagePath = is_array($item) ? ($item['image'] ?? '') : $item; @endphp
                                     <div class="group relative aspect-square overflow-hidden rounded-2xl shadow-lg cursor-pointer bg-gray-100"
                                          onclick='openLightbox({{ json_encode($galleryImages) }}, {{ $index }})'>
-                                        <img src="{{ Storage::url($imagePath) }}" 
+                                        <img src="{{ Storage::url(\Illuminate\Support\Arr::first((array)($imagePath ?? ''))) }}" 
                                              class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
                                              alt="{{ $item['label'] ?? 'Gallery image' }}">
                                         <div class="absolute inset-0 bg-blue-600/0 group-hover:bg-blue-600/20 transition-colors duration-500 flex items-center justify-center">
@@ -180,24 +181,71 @@
             @case('split_content')
                 <section id="{{ $block['data']['anchor_id'] ?? '' }}" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
                     <div class="flex flex-col @if($block['data']['image_position'] == 'left') md:flex-row-reverse @else md:flex-row @endif items-center gap-10 md:gap-16">
-                        <div class="flex-grow">
+                        <div class="w-full md:flex-1">
                             <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4 tracking-tight" style="color: {{ $block['data']['heading_color'] ?? '#111827' }}">{{ $block['data']['heading'] ?? '' }}</h2>
                             <div class="h-1.5 w-16 bg-blue-600 rounded-full mb-8"></div>
                             <div class="prose prose-sm md:prose-base prose-blue max-w-none prose-p:my-2 prose-headings:my-2" style="color: {{ $block['data']['text_color'] ?? '#374151' }}">
-                                {!! $block['data']['content'] ?? '' !!}
+                                {!! is_array($block['data']['content'] ?? '') ? '' : ($block['data']['content'] ?? '') !!}
                             </div>
                         </div>
-                        <div class="w-full md:w-auto md:min-w-[200px] flex justify-center">
+                        <div class="w-full md:flex-1 flex justify-center">
                             @if(!empty($block['data']['image']))
-                                <div class="relative group w-full md:w-[350px]">
+                                <div class="relative group w-full">
                                     <div class="absolute -inset-2 bg-gradient-to-r from-blue-600 to-teal-500 rounded-2xl opacity-10 group-hover:opacity-20 transition duration-500"></div>
-                                    <img src="{{ Storage::url($block['data']['image']) }}" 
+                                    <img src="{{ Storage::url(\Illuminate\Support\Arr::first((array)($block['data']['image'] ?? ''))) }}" 
                                          class="relative w-full h-auto rounded-2xl shadow-xl object-contain hover:scale-[1.02] transition duration-500" 
                                          alt="{{ $block['data']['heading'] ?? '' }}">
                                 </div>
                             @endif
                         </div>
                     </div>
+                </section>
+                @break
+
+            @case('split_video_content')
+                <section id="{{ $block['data']['anchor_id'] ?? '' }}" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
+                    <div class="flex flex-col @if($block['data']['video_position'] == 'left') md:flex-row-reverse @else md:flex-row @endif items-center gap-10 md:gap-16">
+                        <div class="w-full md:flex-1">
+                            <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4 tracking-tight" style="color: {{ $block['data']['heading_color'] ?? '#111827' }}">{{ $block['data']['heading'] ?? '' }}</h2>
+                            <div class="h-1.5 w-16 bg-blue-600 rounded-full mb-8"></div>
+                            <div class="prose prose-sm md:prose-base prose-blue max-w-none prose-p:my-2 prose-headings:my-2" style="color: {{ $block['data']['text_color'] ?? '#374151' }}">
+                                {!! is_array($block['data']['content'] ?? '') ? '' : ($block['data']['content'] ?? '') !!}
+                            </div>
+                        </div>
+                        <div class="w-full md:flex-1 flex justify-center">
+                            <div class="relative group w-full aspect-video">
+                                <div class="absolute -inset-2 bg-gradient-to-r from-blue-600 to-teal-500 rounded-2xl opacity-10 group-hover:opacity-20 transition duration-500"></div>
+                                <div class="relative w-full h-full rounded-2xl overflow-hidden shadow-xl bg-black">
+                                    @if(($block['data']['video_type'] ?? 'url') === 'url' && !empty($block['data']['video_url']))
+                                    @php
+                                        $videoId = '';
+                                        if (preg_match('%(?:youtube(?:-nocookie)?\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?)/|.*[?&]v=)|youtu\.be/)([^"&?/ ]{11})%i', $block['data']['video_url'], $match)) {
+                                            $videoId = $match[1];
+                                        }
+                                    @endphp
+                                    @if($videoId)
+                                        <iframe class="w-full h-full" src="https://www.youtube.com/embed/{{ $videoId }}" 
+                                                frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                                allowfullscreen></iframe>
+                                    @else
+                                        <div class="flex items-center justify-center h-full text-white text-sm p-4 text-center">
+                                            Invalid video URL
+                                        </div>
+                                    @endif
+                                @elseif(($block['data']['video_type'] ?? 'url') === 'file' && !empty($block['data']['video_file']))
+                                    <video class="w-full h-full object-cover" controls>
+                                        <source src="{{ Storage::url(\Illuminate\Support\Arr::first((array)($block['data']['video_file'] ?? ''))) }}" type="video/mp4">
+                                        Your browser does not support the video tag.
+                                    </video>
+                                @else
+                                    <div class="flex items-center justify-center h-full text-white text-sm p-4 text-center">
+                                        No video provided
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 </section>
                 @break
 
@@ -220,7 +268,7 @@
                         <div class="h-1.5 w-16 bg-blue-600 rounded-full mb-8 mx-auto md:mx-0"></div>
                         @if(!empty($block['data']['description']))
                             <div class="prose prose-sm md:prose-base prose-blue text-gray-600 max-w-3xl leading-relaxed">
-                                {!! $block['data']['description'] !!}
+                                {!! is_array($block['data']['description'] ?? '') ? '' : ($block['data']['description'] ?? '') !!}
                             </div>
                         @endif
                     </div>
@@ -231,7 +279,7 @@
                                     <div class="group p-6 md:p-8 bg-white border border-gray-100 rounded-2xl md:rounded-3xl shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 text-center flex flex-col items-center border-b-4 border-b-transparent hover:border-b-blue-500">
                                         @if(!empty($item['icon']))
                                             <div class="mb-6 flex items-center justify-center p-3 rounded-2xl bg-blue-50 group-hover:bg-blue-100 transition-colors duration-500">
-                                                <img src="{{ Storage::url($item['icon']) }}"
+                                                <img src="{{ Storage::url(\Illuminate\Support\Arr::first((array)($item['icon'] ?? ''))) }}"
                                                      class="w-full h-auto object-contain max-w-[120px]"
                                                      style="max-height: 120px;"
                                                      alt="{{ $item['title'] ?? 'Service' }}">
@@ -242,7 +290,7 @@
                                         @endif
                                         @if(!empty($item['description']))
                                             <div class="text-sm text-gray-600 leading-relaxed prose prose-sm prose-blue max-w-none prose-p:my-1 text-center">
-                                                {!! $item['description'] !!}
+                                                {!! is_array($item['description'] ?? '') ? '' : ($item['description'] ?? '') !!}
                                             </div>
                                         @endif
                                     </div>
@@ -299,7 +347,7 @@
                                         @endif
                                     @elseif(($video['type'] ?? 'url') === 'file' && !empty($video['file']))
                                         <video class="w-full h-full object-cover" controls>
-                                            <source src="{{ Storage::url($video['file']) }}" type="video/mp4">
+                                            <source src="{{ Storage::url(\Illuminate\Support\Arr::first((array)($video['file'] ?? ''))) }}" type="video/mp4">
                                             Your browser does not support the video tag.
                                         </video>
                                     @else
@@ -328,11 +376,11 @@
                             @foreach($block['data']['items'] as $item)
                                 <div class="p-8 bg-white/5 backdrop-blur-lg border border-white/10 rounded-3xl">
                                     <div class="text-gray-300 italic mb-8 prose prose-sm prose-invert max-w-none">
-                                        {!! $item['quote'] ?? '' !!}
+                                        {!! is_array($item['quote'] ?? '') ? '' : ($item['quote'] ?? '') !!}
                                     </div>
                                     <div class="flex items-center gap-4">
                                         @if(!empty($item['avatar']))
-                                            <img src="{{ Storage::url($item['avatar']) }}" class="w-12 h-12 rounded-full object-cover border-2 border-blue-500" alt="{{ $item['name'] ?? 'Client' }}">
+                                            <img src="{{ Storage::url(\Illuminate\Support\Arr::first((array)($item['avatar'] ?? ''))) }}" class="w-12 h-12 rounded-full object-cover border-2 border-blue-500" alt="{{ $item['name'] ?? 'Client' }}">
                                         @endif
                                         <div>
                                             <h4 class="text-white font-bold">{{ $item['name'] ?? 'Client' }}</h4>
@@ -367,7 +415,7 @@
                         @csrf
                         <div class="space-y-2">
                             <label class="text-sm font-bold text-gray-700 ml-1">Full Name *</label>
-                            <input type="text" name="name" required value="{{ old('name') }}" placeholder="John Doe"
+                            <input type="text" name="name" required value="{{ old('name') }}" placeholder="John C"
                                    class="w-full px-5 py-4 rounded-xl bg-gray-50 border border-gray-100 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-300 outline-none @error('name') border-red-500 @enderror">
                             @error('name') <p class="text-red-500 text-xs mt-1 ml-1">{{ $message }}</p> @enderror
                         </div>
@@ -381,7 +429,7 @@
 
                         <div class="space-y-2">
                             <label class="text-sm font-bold text-gray-700 ml-1">Phone Number</label>
-                            <input type="text" name="phone" value="{{ old('phone') }}" placeholder="+1 (555) 000-0000"
+                            <input type="text" name="phone" value="{{ old('phone') }}" placeholder="+91 1234567890"
                                    class="w-full px-5 py-4 rounded-xl bg-gray-50 border border-gray-100 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-300 outline-none @error('phone') border-red-500 @enderror">
                             @error('phone') <p class="text-red-500 text-xs mt-1 ml-1">{{ $message }}</p> @enderror
                         </div>
@@ -465,7 +513,7 @@
                             <article class="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 flex flex-col h-full border border-gray-100 group">
                                 @if($post->featured_image)
                                     <div class="aspect-video relative overflow-hidden">
-                                        <img src="{{ Storage::url($post->featured_image) }}" alt="{{ $post->title }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                                        <img src="{{ Storage::url(\Illuminate\Support\Arr::first((array)($post->featured_image ?? ''))) }}" alt="{{ $post->title }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
                                     </div>
                                 @endif
                                 <div class="p-8 flex flex-col flex-grow">
@@ -502,7 +550,7 @@
                             <div class="h-1.5 w-16 bg-blue-600 rounded-full mb-8 mx-auto md:mx-0"></div>
                             @if(!empty($servicesBlock['data']['description']))
                                 <div class="prose prose-sm md:prose-base prose-blue text-gray-600 max-w-3xl leading-relaxed">
-                                    {!! $servicesBlock['data']['description'] !!}
+                                    {!! is_array($servicesBlock['data']['description'] ?? '') ? '' : ($servicesBlock['data']['description'] ?? '') !!}
                                 </div>
                             @endif
                         </div>
@@ -511,12 +559,12 @@
                                 <div class="group p-6 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-500 flex flex-col items-center text-center">
                                     @if(!empty($item['icon']))
                                         <div class="mb-4 p-2 rounded-xl bg-blue-50 group-hover:bg-blue-100 transition-colors">
-                                            <img src="{{ Storage::url($item['icon']) }}" class="w-12 h-12 object-contain" alt="{{ $item['title'] }}">
+                                            <img src="{{ Storage::url(\Illuminate\Support\Arr::first((array)($item['icon'] ?? ''))) }}" class="w-12 h-12 object-contain" alt="{{ $item['title'] }}">
                                         </div>
                                     @endif
                                     <h3 class="text-base font-bold text-gray-900 mb-2">{{ $item['title'] }}</h3>
                                     <div class="text-xs text-gray-600 line-clamp-3">
-                                        {!! $item['description'] !!}
+                                        {!! is_array($item['description'] ?? '') ? '' : ($item['description'] ?? '') !!}
                                     </div>
                                 </div>
                             @endforeach

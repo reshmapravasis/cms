@@ -29,502 +29,205 @@ class PageResource extends Resource
                 Forms\Components\Tabs::make('Page Editor')
                     ->tabs([
                         Forms\Components\Tabs\Tab::make('General')
+                            ->icon('heroicon-o-information-circle')
                             ->schema([
-                                 Forms\Components\Select::make('type')
-                                    ->options([
-                                        'page' => 'Normal Page',
-                                        'post' => 'Blog Post',
-                                    ])
-                                    ->default('page')
-                                    ->required()
-                                    ->live(),
-                                Forms\Components\TextInput::make('title')
-                                    ->required()
-                                    ->live(onBlur: true),
-                                
-                                Forms\Components\FileUpload::make('featured_image')
-                                    ->image()
-                                    ->disk('public')
-                                    ->directory('pages')
-                                    ->visible(fn (Forms\Get $get) => $get('type') === 'post'),
-                                
-                                Forms\Components\Textarea::make('excerpt')
-                                    ->rows(3)
-                                    ->visible(fn (Forms\Get $get) => $get('type') === 'post'),
-
-                                Forms\Components\Toggle::make('is_published')
-                                    ->default(true),
-                                Forms\Components\Select::make('parent_id')
-                                    ->label('Parent Page')
-                                    ->relationship('parent', 'title')
-                                    ->placeholder('Select a parent page (optional)')
-                                    ->searchable(),
+                                Forms\Components\Grid::make(2)
+                                    ->schema([
+                                        Forms\Components\TextInput::make('title')
+                                            ->required()
+                                            ->live(onBlur: true),
+                                        Forms\Components\Select::make('type')
+                                            ->options([
+                                                'page' => 'Normal Page',
+                                                'post' => 'Blog Post',
+                                            ])
+                                            ->default('page')
+                                            ->required()
+                                            ->live(),
+                                        Forms\Components\Select::make('parent_id')
+                                            ->label('Parent Page')
+                                            ->relationship('parent', 'title')
+                                            ->placeholder('Select a parent page (optional)')
+                                            ->searchable(),
+                                        Forms\Components\Toggle::make('is_published')
+                                            ->label('Published')
+                                            ->default(true),
+                                        Forms\Components\FileUpload::make('featured_image')
+                                            ->image()
+                                            ->disk('public')
+                                            ->directory('pages')
+                                            ->visible(fn (Forms\Get $get) => $get('type') === 'post'),
+                                        Forms\Components\Textarea::make('excerpt')
+                                            ->rows(2)
+                                            ->visible(fn (Forms\Get $get) => $get('type') === 'post'),
+                                    ]),
                             ]),
+
                         Forms\Components\Tabs\Tab::make('Content')
+                            ->icon('heroicon-o-pencil-square')
                             ->schema([
                                 Forms\Components\Builder::make('content')
                                     ->blocks([
                                         Forms\Components\Builder\Block::make('marquee')
-                                            ->label('📢 News Ticker / Moving Text')
+                                            ->label(fn (?array $state) => '📢 News Ticker' . ($state ? ': ' . \Illuminate\Support\Str::limit($state['items'][0]['text'] ?? '', 20) : ''))
                                             ->schema([
                                                 Forms\Components\Repeater::make('items')
-                                                    ->label('Ticker Items')
                                                     ->schema([
-                                                        Forms\Components\TextInput::make('text')
-                                                            ->required()
-                                                            ->placeholder('Enter news or update message'),
-                                                        // Forms\Components\TextInput::make('link')
-                                                        //     ->placeholder('Link URL (optional)'),
+                                                        Forms\Components\TextInput::make('text')->required(),
+                                                        Forms\Components\TextInput::make('link'),
                                                     ])
-                                                    ->defaultItems(1)
-                                                    ->reorderable()
-                                                    ->collapsible(),
-                                                Forms\Components\Grid::make(3)
-                                                    ->schema([
-                                                        Forms\Components\ColorPicker::make('bg_color')
-                                                            ->label('Background Color')
-                                                            ->default('#1e40af'), 
-                                                        Forms\Components\ColorPicker::make('text_color')
-                                                            ->label('Text Color')
-                                                            ->default('#ffffff'),
-                                                        Forms\Components\Select::make('speed')
-                                                            ->options([
-                                                                'animate-marquee-slow' => 'Slow',
-                                                                'animate-marquee-normal' => 'Normal',
-                                                                'animate-marquee-fast' => 'Fast',
-                                                            ])
-                                                            ->default('animate-marquee-normal'),
-                                                        Forms\Components\Select::make('font_size')
-                                                            ->options([
-                                                                'text-xs' => 'Smallest',
-                                                                'text-sm' => 'Small',
-                                                                'text-base' => 'Normal',
-                                                                'text-lg' => 'Large',
-                                                                'text-xl' => 'Extra Large',
-                                                            ])
-                                                            ->default('text-base'),
-                                                        Forms\Components\Select::make('font_weight')
-                                                            ->options([
-                                                                'font-normal' => 'Normal',
-                                                                'font-medium' => 'Medium',
-                                                                'font-semibold' => 'Semibold',
-                                                                'font-bold' => 'Bold',
-                                                                'font-black' => 'Black',
-                                                            ])
-                                                            ->default('font-medium'),
-                                                        Forms\Components\Select::make('text_effect')
-                                                            ->options([
-                                                                'none' => 'None',
-                                                                'shadow' => 'Drop Shadow',
-                                                                'glow' => 'Glow Effect',
-                                                                'outline' => 'Text Outline',
-                                                            ])
-                                                            ->default('none'),
-                                                    ]),
-                                                Forms\Components\TextInput::make('separator')
-                                                    ->label('Separator Symbol')
-                                                    ->default('•')
-                                                    ->maxLength(5),
+                                                    ->minItems(1)
+                                                    ->label('Marquee Items'),
+                                                Forms\Components\TextInput::make('speed')
+                                                    ->numeric()
+                                                    ->default(40)
+                                                    ->helperText('Lower is slower, higher is faster (default: 40)'),
+                                                Forms\Components\TextInput::make('gap')
+                                                    ->default('5rem')
+                                                    ->helperText('Gap between items (e.g., 5rem, 50px)'),
                                             ]),
                                         Forms\Components\Builder\Block::make('rich_text')
+                                            ->label(fn (?array $state) => '📝 Rich Text' . ($state ? ': ' . \Illuminate\Support\Str::limit(strip_tags($state['content'] ?? ''), 20) : ''))
                                             ->schema([
-                                                TiptapEditor::make('content')
+                                                TiptapEditor::make('content')->output(TiptapOutput::Html)
                                                     ->profile('default')
-                                                    ->extraInputAttributes(['style' => 'min-height: 12rem;'])
-                                                    ->output(TiptapOutput::Html)
                                                     ->required(),
-                                                Forms\Components\ColorPicker::make('text_color')
-                                                    ->default('#111827'),
                                                 Forms\Components\Select::make('text_size')
                                                     ->options([
                                                         'text-sm' => 'Small',
                                                         'text-base' => 'Normal',
                                                         'text-lg' => 'Medium',
                                                         'text-xl' => 'Large',
-                                                        'text-2xl' => 'Extra Large',
                                                     ])
                                                     ->default('text-base'),
                                             ]),
                                         Forms\Components\Builder\Block::make('hero')
+                                            ->label(fn (?array $state) => '🚀 Hero Section' . ($state ? ': ' . ($state['heading'] ?? '') : ''))
                                             ->schema([
                                                 Forms\Components\TextInput::make('heading'),
-                                                Forms\Components\ColorPicker::make('heading_color')
-                                                    ->default('#ffffff'),
-                                                Forms\Components\TextInput::make('subheading'),
-                                                Forms\Components\ColorPicker::make('subheading_color')
-                                                    ->default('#dbeafe'),
-                                                // Forms\Components\Select::make('text_size')
-                                                //     ->label('Subheading Size')
-                                                //     ->options([
-                                                //         'text-base' => 'Small',
-                                                //         'text-lg' => 'Normal',
-                                                //         'text-xl' => 'Medium',
-                                                //         'text-2xl' => 'Large',
-                                                //     ])
-                                                //     ->default('text-xl'),
-                                                Forms\Components\FileUpload::make('background_image')
-                                                    ->image()
-                                                    ->disk('public')
-                                                    ->directory('hero-images'),
+                                                Forms\Components\ColorPicker::make('heading_color')->default('#111827'),
+                                                TiptapEditor::make('content')->output(TiptapOutput::Html),
+                                                Forms\Components\TextInput::make('button_text'),
+                                                Forms\Components\TextInput::make('button_link'),
+                                                Forms\Components\FileUpload::make('image')->image()->disk('public')->directory('hero-images'),
                                             ]),
+
                                         Forms\Components\Builder\Block::make('image')
+                                            ->label(fn (?array $state) => '🖼️ Image' . ($state ? ': ' . ($state['alt'] ?? ($state['caption'] ?? '')) : ''))
                                             ->schema([
-                                                Forms\Components\FileUpload::make('image')
-                                                    ->image()
-                                                    ->disk('public')
-                                                    ->required(),
-                                                Forms\Components\TextInput::make('alt'),
-                                                Forms\Components\TextInput::make('caption'),
-                                            ]),
-                                        Forms\Components\Builder\Block::make('video')
-                                            ->schema([
-                                                Forms\Components\TextInput::make('url')
-                                                    ->label('YouTube/Vimeo URL')
-                                                    ->required(),
-                                                Forms\Components\TextInput::make('title'),
-                                            ]),
-                                        Forms\Components\Builder\Block::make('gallery')
-                                            ->label('🖼️ Photo Gallery')
-                                            ->schema([
-                                                Forms\Components\TextInput::make('heading')->placeholder('Gallery Heading (optional)'),
-                                                Forms\Components\ColorPicker::make('heading_color')
-                                                    ->default('#111827'),
-                                                Forms\Components\Repeater::make('images')
-                                                    ->schema([
-                                                        Forms\Components\FileUpload::make('image')
-                                                            ->image()
-                                                            ->disk('public')
-                                                            ->directory('gallery')
-                                                            ->required(),
-                                                        Forms\Components\TextInput::make('label')
-                                                            ->placeholder('Enter label (optional)'),
-                                                        
-                                                    ])
-                                                    ->grid(3)
-                                                    ->collapsible()
-                                                    ->itemLabel(fn (array $state): ?string => $state['label'] ?? null)
-                                                    ->required(),
-                                                Forms\Components\Select::make('columns')
-                                                    ->options([
-                                                        '2' => '2 Columns',
-                                                        '3' => '3 Columns',
-                                                        '4' => '4 Columns',
-                                                    ])
-                                                    ->default('3'),
-                                            ]),
-                                        Forms\Components\Builder\Block::make('video_gallery')
-                                            ->label('🎬 Video Gallery')
-                                            ->schema([
-                                                Forms\Components\TextInput::make('heading')->placeholder('Gallery Heading (optional)'),
-                                                Forms\Components\ColorPicker::make('heading_color')
-                                                    ->default('#111827'),
-                                                Forms\Components\Repeater::make('videos')
-                                                    ->schema([
-                                                        Forms\Components\Select::make('type')
-                                                            ->options([
-                                                                'url' => 'External URL (YouTube/Video)',
-                                                                'file' => 'Local Video Upload',
-                                                            ])
-                                                            ->default('url')
-                                                            ->live()
-                                                            ->required(),
-                                                        Forms\Components\TextInput::make('url')
-                                                            ->label('Video URL')
-                                                            ->placeholder('Enter YouTube or Vimeo link')
-                                                            ->visible(fn (Forms\Get $get) => $get('type') === 'url')
-                                                            ->requiredIf('type', 'url'),
-                                                        Forms\Components\FileUpload::make('file')
-                                                            ->label('Upload Video')
-                                                            ->disk('public')
-                                                            ->directory('videos')
-                                                            ->acceptedFileTypes(['video/mp4', 'video/webm', 'video/ogg'])
-                                                            ->maxSize(102400) // 100MB
-                                                            ->visible(fn (Forms\Get $get) => $get('type') === 'file')
-                                                            ->requiredIf('type', 'file'),
-                                                        Forms\Components\TextInput::make('title')
-                                                            ->placeholder('Video Title (optional)'),
-                                                    ])
-                                                    ->columns(2)
-                                                    ->defaultItems(1)
-                                                    ->collapsible(),
-                                                Forms\Components\Select::make('columns')
-                                                    ->options([
-                                                        '1' => '1 Column',
-                                                        '2' => '2 Columns',
-                                                        '3' => '3 Columns',
-                                                    ])
-                                                    ->default('2'),
-                                            ]),
-                                        Forms\Components\Builder\Block::make('split_content')
-                                            ->label('Split Content (Text & Image)')
-                                            ->schema([
+                                                Forms\Components\FileUpload::make('image')->image()->disk('public')->required(),
                                                 Forms\Components\Grid::make(3)
                                                     ->schema([
-                                                        Forms\Components\TextInput::make('heading')
-                                                            ->required()
-                                                            ->columnSpan(2),
-                                                         Forms\Components\TextInput::make("anchor_id")->label("Anchor ID (e.g. about-us)"),
-                                                        Forms\Components\ColorPicker::make('heading_color')
-                                                            ->default('#111827'),
-                                                        TiptapEditor::make('content')
-                                                            ->profile('default')
-                                                            ->extraInputAttributes(['style' => 'min-height: 12rem;'])
-                                                            ->output(TiptapOutput::Html)
-                                                            ->required()
-                                                            ->columnSpanFull(),
-                                                        Forms\Components\ColorPicker::make('text_color')
-                                                            ->default('#374151'),
-                                                        Forms\Components\Select::make('text_size')
+                                                        Forms\Components\TextInput::make('alt'),
+                                                        Forms\Components\TextInput::make('caption'),
+                                                        Forms\Components\Select::make('width_percent')
+                                                            ->label('Display Width')
                                                             ->options([
-                                                                'text-xs' => 'Smallest',
-                                                                'text-sm' => 'Small',
-                                                                'text-base' => 'Normal',
-                                                                'text-lg' => 'Large',
+                                                                '100' => 'Full Width',
+                                                                '80' => 'Large (80%)',
+                                                                '60' => 'Medium (60%)',
+                                                                '50' => 'Half (50%)',
+                                                                '40' => 'Compact (40%)',
+                                                                '25' => 'Small (25%)',
                                                             ])
-                                                            ->default('text-base'),
-                                                        Forms\Components\FileUpload::make('image')
-                                                            ->image()
-                                                            ->disk('public')
-                                                            ->directory('content')
-                                                            ->required(),
-                                                         Forms\Components\Select::make('image_position')
-                                                            ->options([
-                                                                'left' => 'Image Left',
-                                                                'right' => 'Image Right',
-                                                            ])
-                                                            ->default('right')
-                                                            ->required(),
+                                                            ->default('100'),
                                                     ]),
                                             ]),
-                                        Forms\Components\Builder\Block::make('services')
-                                            ->label('Services Grid')
+
+                                        Forms\Components\Builder\Block::make('video')
+                                            ->label(fn (?array $state) => '🎥 Single Video' . ($state ? ': ' . ($state['title'] ?? '') : ''))
                                             ->schema([
+                                                Forms\Components\TextInput::make('url')->label('YouTube/Vimeo URL')->required(),
                                                 Forms\Components\Grid::make(2)
                                                     ->schema([
-                                                        Forms\Components\ColorPicker::make('heading_color')
-                                                            ->default('#111827'),
-                                                        Forms\Components\TextInput::make('heading')->default('Our Services')->columnSpanFull(),
-                                                        TiptapEditor::make('description')
-                                                            ->label('Section Description')
-                                                            ->profile('default')
-                                                            ->output(TiptapOutput::Html),
-                                                        Forms\Components\Select::make('text_size')
-                                                            ->label('Description Size')
+                                                        Forms\Components\TextInput::make('title'),
+                                                        Forms\Components\Select::make('width_percent')
+                                                            ->label('Display Width')
                                                             ->options([
-                                                                'text-xs' => 'Small',
-                                                                'text-sm' => 'Normal',
-                                                                'text-base' => 'Medium',
-                                                                'text-lg' => 'Large',
+                                                                '100' => 'Full Width',
+                                                                '80' => 'Large (80%)',
+                                                                '60' => 'Medium (60%)',
+                                                                '50' => 'Half (50%)',
+                                                                '40' => 'Compact (40%)',
+                                                                '25' => 'Small (25%)',
                                                             ])
-                                                            ->default('text-sm'),
-                                                        Forms\Components\FileUpload::make('image')
-                                                            ->label('Section Image')
-                                                            ->image()
-                                                            ->disk('public')
-                                                            ->directory('services'),
-                                                        Forms\Components\Select::make('columns')
-                                                            ->label('Items per Row (Desktop)')
-                                                            ->options([
-                                                                '2' => '2 Columns',
-                                                                '3' => '3 Columns',
-                                                                '4' => '4 Columns',
-                                                                '5' => '5 Columns',
-                                                                '6' => '6 Columns',
-                                                            ])
-                                                            ->default('3')
-                                                            ->required(),
+                                                            ->default('100'),
                                                     ]),
-                                                Forms\Components\Repeater::make('items')
-                                                    ->label('Service Items')
-                                                    ->schema([
-                                                        Forms\Components\TextInput::make('title')->required(),
-                                                        TiptapEditor::make('description')
-                                                            ->profile('default')
-                                                            ->output(TiptapOutput::Html)
-                                                            ->required(),
-                                                        Forms\Components\FileUpload::make('icon')
-                                                            ->image()
-                                                            ->disk('public')
-                                                            ->directory('services'),
-                                                    ])
-                                                    ->grid(3)
-                                                    ->collapsible(),
+                                            ]),
 
-                                            ]),
-                                        Forms\Components\Builder\Block::make('documents')
-                                            ->label('📎 Documents / Resources Sidebar')
+                                        Forms\Components\Builder\Block::make('split_content')
+                                            ->label(fn (?array $state) => '↔️ Split: Text & Image' . ($state ? ': ' . ($state['heading'] ?? '') : ''))
                                             ->schema([
-                                                Forms\Components\TextInput::make('heading')
-                                                    ->label('Section Heading')
-                                                    ->default('Resources'),
-                                                Forms\Components\Select::make('layout')
-                                                    ->label('Display Style')
-                                                    ->options([
-                                                        'sidebar' => 'Sticky Sidebar (beside services)',
-                                                        'section' => 'Full Section (standalone)',
-                                                    ])
-                                                    ->default('sidebar'),
-                                                Forms\Components\Repeater::make('documents')
-                                                    ->label('Documents')
-                                                    ->schema([
-                                                        Forms\Components\TextInput::make('name')
-                                                            ->label('Document Name')
-                                                            ->required(),
-                                                         Forms\Components\FileUpload::make('file')
-                                                            ->label('Upload PDF / Brochure / Doc')
-                                                            ->disk('public')
-                                                            ->directory('documents')
-                                                            ->acceptedFileTypes([
-                                                                'application/pdf',
-                                                                'application/msword',
-                                                                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                                                                'application/vnd.ms-excel',
-                                                                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                                                                'application/octet-stream', // fallback for some browsers
-                                                            ])
-                                                            ->maxSize(51200) // 50MB
-                                                            ->required(),
-                                                    ])
-                                                    ->defaultItems(1)
-                                                    ->collapsible(),
-                                                Forms\Components\Toggle::make('show_contact_card')
-                                                    ->label('Show Contact Card')
-                                                    ->default(true),
-                                                Forms\Components\TextInput::make('contact_title')
-                                                    ->label('Contact Card Title')
-                                                    ->default('Need Help?'),
-                                                Forms\Components\TextInput::make('contact_text')
-                                                    ->label('Contact Card Subtitle')
-                                                    ->default('Contact our experts for customized IT solutions.'),
-                                                Forms\Components\TextInput::make('contact_link')
-                                                    ->label('Contact Card Button Link')
-                                                    ->default('/contact-us'),
-                                                Forms\Components\TextInput::make('contact_btn_text')
-                                                    ->label('Contact Card Button Text')
-                                                    ->default('Contact Us'),
+                                                Forms\Components\Grid::make(3)->schema([
+                                                    Forms\Components\TextInput::make('heading')->columnSpan(2),
+                                                    Forms\Components\ColorPicker::make('heading_color')->default('#111827'),
+                                                    TiptapEditor::make('content')->output(TiptapOutput::Html)->columnSpanFull(),
+                                                    Forms\Components\ColorPicker::make('text_color')->default('#374151'),
+                                                    Forms\Components\FileUpload::make('image')->image()->disk('public')->directory('split-images'),
+                                                    Forms\Components\Select::make('image_position')->options(['left' => 'Left', 'right' => 'Right'])->default('right'),
+                                                    Forms\Components\TextInput::make('anchor_id')->label('Anchor ID (for jumping to section)')->placeholder('e.g. about-us'),
+                                                ]),
                                             ]),
+
+                                        Forms\Components\Builder\Block::make('split_video_content')
+                                            ->label(fn (?array $state) => '↔️ Split: Text & Video' . ($state ? ': ' . ($state['heading'] ?? '') : ''))
+                                            ->schema([
+                                                Forms\Components\Grid::make(3)->schema([
+                                                    Forms\Components\TextInput::make('heading')->columnSpan(2),
+                                                    Forms\Components\ColorPicker::make('heading_color')->default('#111827'),
+                                                    TiptapEditor::make('content')->output(TiptapOutput::Html)->columnSpanFull(),
+                                                    Forms\Components\ColorPicker::make('text_color')->default('#374151'),
+                                                    Forms\Components\Select::make('video_type')->options(['url' => 'URL', 'file' => 'Upload'])->default('url')->live(),
+                                                    Forms\Components\TextInput::make('video_url')->visible(fn (Forms\Get $get) => $get('video_type') === 'url'),
+                                                    Forms\Components\FileUpload::make('video_file')->visible(fn (Forms\Get $get) => $get('video_type') === 'file'),
+                                                    Forms\Components\Select::make('video_position')->options(['left' => 'Left', 'right' => 'Right'])->default('right'),
+                                                    Forms\Components\TextInput::make('anchor_id'),
+                                                ]),
+                                            ]),
+
+                                        Forms\Components\Builder\Block::make('services')
+                                            ->label(fn (?array $state) => '🛠️ Services Grid' . ($state ? ': ' . ($state['heading'] ?? '') : ''))
+                                            ->schema([
+                                                Forms\Components\TextInput::make('heading')->default('Our Services'),
+                                                Forms\Components\Repeater::make('items')
+                                                    ->schema([
+                                                        Forms\Components\TextInput::make('title'),
+                                                        TiptapEditor::make('description')->output(TiptapOutput::Html),
+                                                        Forms\Components\FileUpload::make('icon'),
+                                                    ])->grid(3),
+                                            ]),
+
                                         Forms\Components\Builder\Block::make('testimonials')
-                                            ->label('Testimonials Slider')
+                                            ->label(fn (?array $state) => '💬 Testimonials' . ($state ? ': ' . ($state['heading'] ?? '') : ''))
                                             ->schema([
-                                                Forms\Components\ColorPicker::make('heading_color')
-                                                    ->default('#ffffff'),
-                                                Forms\Components\TextInput::make('heading')->default('What Our Clients Say'),
+                                                Forms\Components\TextInput::make('heading')->default('What They Say'),
                                                 Forms\Components\Repeater::make('items')
                                                     ->schema([
-                                                        Forms\Components\TextInput::make('name')->required(),
-                                                        Forms\Components\TextInput::make('role'),
-                                                        TiptapEditor::make('quote')
-                                                            ->profile('default')
-                                                            ->output(TiptapOutput::Html)
-                                                            ->required(),
-                                                        Forms\Components\FileUpload::make('avatar')
-                                                            ->image()
-                                                            ->disk('public')
-                                                            ->directory('testimonials'),
-                                                    ])
-                                                    ->collapsible(),
+                                                        Forms\Components\TextInput::make('name'),
+                                                        TiptapEditor::make('quote')->output(TiptapOutput::Html),
+                                                    ]),
                                             ]),
+
                                         Forms\Components\Builder\Block::make('contact_form')
+                                            ->label(fn (?array $state) => '📧 Contact Form' . ($state ? ': ' . ($state['heading'] ?? '') : ''))
                                             ->schema([
-                                                Forms\Components\TextInput::make('heading')
-                                                    ->default('Contact Us'),
-                                                Forms\Components\TextInput::make('subheading'),
-                                            ]),
-                                        Forms\Components\Builder\Block::make('stats')
-                                            ->label('📊 Statistics Counters')
-                                            ->schema([
-                                                Forms\Components\Repeater::make('items')
-                                                    ->schema([
-                                                        Forms\Components\TextInput::make('number')
-                                                            ->label('Number (e.g. 515)')
-                                                            ->numeric()
-                                                            ->required(),
-                                                        Forms\Components\TextInput::make('label')
-                                                            ->label('Label (e.g. Clients)')
-                                                            ->required(),
-                                                        Forms\Components\TextInput::make('suffix')
-                                                            ->label('Suffix (e.g. + or %)')
-                                                            ->placeholder('+'),
-                                                    ])
-                                                    ->grid(4)
-                                                    ->defaultItems(4)
-                                                    ->collapsible(),
-                                            ]),
-                                        Forms\Components\Builder\Block::make('info_cards')
-                                            ->label('📦 Info Cards (Mission/Vision)')
-                                            ->schema([
-                                                Forms\Components\Repeater::make('items')
-                                                    ->schema([
-                                                        Forms\Components\TextInput::make('title')
-                                                            ->required(),
-                                                        Forms\Components\Textarea::make('description')
-                                                            ->rows(3)
-                                                            ->required(),
-                                                        Forms\Components\ColorPicker::make('bg_color')
-                                                            ->label('Background Color')
-                                                            ->default('#001a72'),
-                                                        Forms\Components\ColorPicker::make('text_color')
-                                                            ->label('Text Color')
-                                                            ->default('#ffffff'),
-                                                        Forms\Components\Select::make('text_size')
-                                                            ->options([
-                                                                'text-sm' => 'Small',
-                                                                'text-base' => 'Normal',
-                                                                'text-lg' => 'Medium',
-                                                                'text-xl' => 'Large',
-                                                            ])
-                                                            ->default('text-lg'),
-                                                    ])
-                                                    ->grid(2)
-                                                    ->defaultItems(2)
-                                                    ->collapsible(),
-                                            ]),
-                                        Forms\Components\Builder\Block::make('blog_feed')
-                                            ->label('📰 Latest Blog Feed')
-                                            ->schema([
-                                                Forms\Components\ColorPicker::make('heading_color')
-                                                    ->default('#111827'),
-                                                Forms\Components\TextInput::make('heading')
-                                                    ->default('Latest News & Updates'),
-                                                Forms\Components\Select::make('heading_size')
-                                                    ->options([
-                                                        'text-2xl' => 'Small',
-                                                        'text-3xl' => 'Medium',
-                                                        'text-4xl' => 'Large',
-                                                        'text-5xl' => 'Extra Large',
-                                                        'text-6xl' => 'Huge',
-                                                    ])
-                                                    ->default('text-4xl'),
-                                                Forms\Components\TextInput::make('subheading')
-                                                    ->default('Stay updated with our latest stories'),
-                                                Forms\Components\Select::make('limit')
-                                                    ->label('Number of posts to show')
-                                                    ->options([
-                                                        '3' => '3 Posts',
-                                                        '6' => '6 Posts',
-                                                        '9' => '9 Posts',
-                                                    ])
-                                                    ->default('3'),
-                                                Forms\Components\Select::make('columns')
-                                                    ->options([
-                                                        '2' => '2 Columns',
-                                                        '3' => '3 Columns',
-                                                    ])
-                                                    ->default('3'),
-                                                Forms\Components\TextInput::make('view_all_link')
-                                                    ->label('View All Button Link (optional)')
-                                                    ->placeholder('/blog'),
+                                                Forms\Components\TextInput::make('heading')->default('Contact Us'),
                                             ]),
                                     ])
                                     ->collapsible()
-                                    ->cloneable(),
-                            ])->columnSpanFull(),
+                                    ->cloneable()
+                                    ->blockNumbers(false)
+                                    ->columnSpanFull(),
+                            ]),
+
                         Forms\Components\Tabs\Tab::make('SEO')
+                            ->icon('heroicon-o-presentation-chart-line')
                             ->schema([
                                 Forms\Components\TextInput::make('seo_title'),
                                 Forms\Components\Textarea::make('seo_description'),
                             ]),
-                    ])->columnSpanFull(),
+                    ])
+                    ->columnSpanFull(),
             ]);
     }
 
